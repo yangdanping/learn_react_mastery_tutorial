@@ -1,14 +1,14 @@
 /**
  * File: src/contexts/ThemeContext.tsx
- * 
+ *
  * Theme Context Provider - Global theme state management
  * Provides theme switching functionality across the entire application
  */
 
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-
+import React, { createContext, use, useState, useCallback, useEffect } from 'react';
+import type { ReactNode } from 'react';
 // Theme context type definition
 export interface ThemeContextType {
   theme: string;
@@ -16,23 +16,25 @@ export interface ThemeContextType {
 }
 
 // Create the theme context
-export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+export const ThemeContext = createContext<ThemeContextType | null>(null);
 
 // Custom hook to use theme context with error checking
-export function useTheme(): ThemeContextType {
-  const context = useContext(ThemeContext);
+export const useTheme = (): ThemeContextType => {
+  const context = use(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within ThemeProvider');
   }
   return context;
-}
+};
 
 // Theme provider component
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState('light');
-  
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [theme, setTheme] = useState('light'); // 定义控制全局主题的state
+
   const toggleTheme = useCallback(() => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme((prev) => {
+      return prev === 'light' ? 'dark' : 'light';
+    });
   }, []);
 
   // Apply theme class to body element
@@ -40,9 +42,5 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.body.className = theme;
   }, [theme]);
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-} 
+  return <ThemeContext value={{ theme, toggleTheme }}>{children}</ThemeContext>;
+};
