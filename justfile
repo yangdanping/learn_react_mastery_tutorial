@@ -1,10 +1,10 @@
-# 安装依赖
-i:
-    pnpm i
-
 # 交互式升级所有包到最新版本
 up:
     pnpm up -i --latest
+
+# 安装依赖
+i:
+    pnpm i
 
 # 启动开发服务器
 dev:
