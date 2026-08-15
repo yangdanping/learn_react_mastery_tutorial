@@ -48,7 +48,7 @@ export const ButtonShowcase = () => {
       <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>
         One component, multiple styles via props
       </p>
-      <div className="flex flex-row gap-3 justify-center">
+      <div className="flex flex-row flex-wrap gap-3 justify-center">
         {/* 复用同一个组件 */}
         <CustomButton variant="primary" onClick={() => alert('Primary!')}>
           Primary CustomButton

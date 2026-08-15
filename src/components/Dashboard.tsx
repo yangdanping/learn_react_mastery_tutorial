@@ -9,8 +9,7 @@
 
 'use client';
 
-import React from 'react';
-import { useTheme } from '../contexts/ThemeContext';
+import React, { Activity } from 'react';
 import { Counter } from './01_Counter(useState示例)';
 import { Clock } from './02_Clock(useEffect示例)';
 import { ButtonShowcase } from './03_ButtonShowcase(Props示例)';
@@ -20,54 +19,90 @@ import { ContactForm } from './06_ContactForm(表单处理示例)';
 import { ThemeToggle } from './07_ThemeToggle(Context API示例)';
 import { NotesWidget } from './08_NotesWidget(自定义Hooks示例)';
 import { Section } from './Section';
+import { TableOfContents, type TocSide } from './TableOfContents';
+import { TUTORIAL_SECTIONS } from '../lib/sections';
 
-// =====================================
-// MAIN DASHBOARD COMPONENT
-// 主页仪表盘组件(示例组件现已从独立文件中导入)
-// =====================================
-const DashboardContent = () => {
-  // Using the custom hook from our contexts folder
-  // 使用来自 contexts 目录的自定义 hook
-  const { theme } = useTheme();
+interface DashboardProps {
+  tocSide?: TocSide;
+  zenMode: boolean;
+  activeId: string;
+  onActiveIdChange: (id: string) => void;
+  onEnterZen: () => void;
+}
 
+function renderSectionBody(id: string) {
+  switch (id) {
+    case 'state-management':
+      return (
+        <>
+          <Counter />
+          <Clock />
+        </>
+      );
+    case 'component-architecture':
+      return <ButtonShowcase />;
+    case 'conditional-rendering':
+      return <UserProfile />;
+    case 'data-display':
+      return <TodoList />;
+    case 'user-interaction':
+      return <ContactForm />;
+    case 'global-state':
+      return <ThemeToggle />;
+    case 'advanced-patterns':
+      return <NotesWidget />;
+    default:
+      return null;
+  }
+}
+
+const DashboardContent = ({ zenMode, activeId }: { zenMode: boolean; activeId: string }) => {
   return (
-    <div className={`dashboard-center ${theme}`}>
-      {/* Foundation Patterns */}
-      {/* 基础模式 */}
-      <Section number={1} title="State Management" description="useState + useEffect - The foundation of React components">
-        <Counter />
-        <Clock />
-      </Section>
-
-      <Section number={2} title="Component Architecture" description="Props & Composition - Building reusable components">
-        <ButtonShowcase />
-      </Section>
-
-      <Section number={3} title="Conditional Rendering" description="Showing the right content at the right time (Loading states, error states, feature flags)">
-        <UserProfile />
-      </Section>
-
-      <Section number={4} title="Data Display" description="List Rendering & Keys - Efficiently displaying arrays of data">
-        <TodoList />
-      </Section>
-
-      <Section number={5} title="User Interaction" description="Event Handling & Forms - Managing user input and validation">
-        <ContactForm />
-      </Section>
-
-      <Section number={6} title="Global State" description="Context API - Sharing state across components without prop drilling - useCallback">
-        <ThemeToggle />
-      </Section>
-
-      <Section number={7} title="Advanced Patterns" description="Custom Hooks & Performance - Reusable logic and optimization">
-        <NotesWidget />
-      </Section>
+    <div className="dashboard-center">
+      {TUTORIAL_SECTIONS.map((section) => (
+        <Activity
+          key={section.id}
+          name={section.title}
+          // Hidden sections destroy Effects (timers/subscriptions) but keep widget state.
+          // 隐藏章节会销毁 Effect（计时器/订阅），但保留组件内部状态。
+          mode={!zenMode || section.id === activeId ? 'visible' : 'hidden'}
+        >
+          <Section
+            id={section.id}
+            number={section.number}
+            title={section.title}
+            description={section.description}
+            hideHeader={zenMode}
+          >
+            {renderSectionBody(section.id)}
+          </Section>
+        </Activity>
+      ))}
     </div>
   );
 };
 
-const Dashboard = () => {
-  return <DashboardContent />;
+const Dashboard = ({
+  tocSide = 'right',
+  zenMode,
+  activeId,
+  onActiveIdChange,
+  onEnterZen
+}: DashboardProps) => {
+  return (
+    <>
+      {zenMode ? null : (
+        <TableOfContents
+          side={tocSide}
+          items={TUTORIAL_SECTIONS}
+          activeId={activeId}
+          onActiveIdChange={onActiveIdChange}
+          onEnterZen={onEnterZen}
+        />
+      )}
+      <DashboardContent zenMode={zenMode} activeId={activeId} />
+    </>
+  );
 };
 
 export default Dashboard;

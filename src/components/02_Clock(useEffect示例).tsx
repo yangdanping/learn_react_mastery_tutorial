@@ -69,13 +69,8 @@ export const Clock = () => {
 
       {/* Visual Feedback(可视化反馈) */}
       {showBadExample && (
-        <div
-          className="rounded mb-4 text-center p-2"
-          style={{
-            background: 'rgba(255, 68, 68, 0.1)'
-          }}
-        >
-          <div className="text-sm font-bold" style={{ color: '#ff4444' }}>
+        <div className="rounded mb-4 text-center p-2 tint tint-destructive">
+          <div className="text-sm font-bold tint-text-destructive">
             ⚠️ Renders: {renderCount} | Check console!
           </div>
           <div className="text-xs" style={{ color: 'var(--muted-foreground)' }}>

@@ -149,7 +149,7 @@ export const ContactForm = () => {
           </h4>
 
           {isSubmitting && (
-            <div className="mb-4 p-3 rounded text-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+            <div className="mb-4 p-3 rounded text-center tint tint-primary">
               <div className="status-loading">📤 Sending...</div>
             </div>
           )}
@@ -201,42 +201,24 @@ export const ContactForm = () => {
           {/* Modern Statistics Cards */}
           {!!submittedDataList.length && (
             <div className="grid grid-cols-3 gap-3 mb-6">
-              <div
-                className="text-center p-3 rounded-xl"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)',
-                  border: '1px solid rgba(59, 130, 246, 0.2)'
-                }}
-              >
-                <div className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
+              <div className="text-center p-3 rounded-xl tint tint-primary">
+                <div className="text-2xl font-bold tint-text-primary">
                   {submissionStats.total}
                 </div>
                 <div className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
                   Total Messages
                 </div>
               </div>
-              <div
-                className="text-center p-3 rounded-xl"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
-                  border: '1px solid rgba(16, 185, 129, 0.2)'
-                }}
-              >
-                <div className="text-2xl font-bold" style={{ color: '#10b981' }}>
+              <div className="text-center p-3 rounded-xl tint tint-success">
+                <div className="text-2xl font-bold tint-text-success">
                   {submissionStats.uniqueEmails}
                 </div>
                 <div className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
                   Unique Senders
                 </div>
               </div>
-              <div
-                className="text-center p-3 rounded-xl"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)',
-                  border: '1px solid rgba(245, 158, 11, 0.2)'
-                }}
-              >
-                <div className="text-2xl font-bold" style={{ color: '#f59e0b' }}>
+              <div className="text-center p-3 rounded-xl tint tint-warning">
+                <div className="text-2xl font-bold tint-text-warning">
                   {submissionStats.avgMessageLength}
                 </div>
                 <div className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
@@ -259,9 +241,8 @@ export const ContactForm = () => {
                   key={submission.id}
                   className="group relative p-4 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
                   style={{
-                    background: 'var(--card)',
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                    background: 'var(--background)',
+                    border: '1px solid var(--border)'
                   }}
                 >
                   {/* Modern message header with gradient badge */}
@@ -278,10 +259,7 @@ export const ContactForm = () => {
                         #{submission.id}
                       </div>
                       {index === 0 && (
-                        <div
-                          className="px-2 py-1 rounded-full text-xs font-medium"
-                          style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid rgba(34, 197, 94, 0.2)' }}
-                        >
+                        <div className="px-2 py-1 rounded-full text-xs font-medium tint tint-success tint-text-success">
                           ✨ Latest
                         </div>
                       )}
@@ -294,9 +272,9 @@ export const ContactForm = () => {
                         fontSize: '11px',
                         padding: '4px 8px',
                         borderRadius: '8px',
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                        color: '#ef4444'
+                        background: 'color-mix(in srgb, var(--destructive) 14%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--destructive) 28%, transparent)',
+                        color: 'var(--destructive)'
                       }}
                     >
                       ✕
@@ -345,7 +323,7 @@ export const ContactForm = () => {
                         <span className="text-xs font-bold" style={{ color: 'var(--primary)' }}>
                           💬 MESSAGE
                         </span>
-                        <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+                        <span className="text-xs px-2 py-1 rounded-full chip">
                           {submission.message.length} chars
                         </span>
                       </div>
@@ -371,22 +349,10 @@ export const ContactForm = () => {
               ))}
             </div>
           ) : (
-            <div
-              className="text-center p-12 rounded-2xl"
-              style={{
-                background: 'linear-gradient(135deg, var(--muted) 0%, rgba(255,255,255,0.1) 100%)',
-                border: '2px dashed var(--border)'
-              }}
-            >
+            <div className="text-center p-12 rounded-2xl empty-panel">
               {/* Modern empty state */}
               <div className="mb-4">
-                <div
-                  className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
-                    border: '2px solid rgba(99, 102, 241, 0.2)'
-                  }}
-                >
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 tint tint-primary">
                   <span className="text-2xl">📭</span>
                 </div>
               </div>
@@ -398,14 +364,7 @@ export const ContactForm = () => {
                 <br />
                 to see it beautifully displayed here!
               </p>
-              <div
-                className="inline-block mt-4 px-4 py-2 rounded-full text-xs font-medium"
-                style={{
-                  background: 'rgba(99, 102, 241, 0.1)',
-                  color: '#6366f1',
-                  border: '1px solid rgba(99, 102, 241, 0.2)'
-                }}
-              >
+              <div className="inline-block mt-4 px-4 py-2 rounded-full text-xs font-medium chip">
                 ✨ Ready for your first message
               </div>
             </div>

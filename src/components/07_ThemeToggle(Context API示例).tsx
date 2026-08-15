@@ -56,11 +56,13 @@ export const ThemeToggle = () => {
         {/* 无需层层传递的全局状态 */}
       </p>
       <div className="text-center">
-        <div className="text-xl mb-4">
+        <div className="text-xl mb-4" suppressHydrationWarning>
           Current theme: <strong>{theme}</strong>
         </div>
-        {/* 切换主题模式 */}
         <CustomButton onClick={toggleTheme}>Switch to {theme === 'light' ? '🌙 Dark' : '☀️ Light'} mode</CustomButton>
+        <p className="theme-hotkey-hint">
+          Press <kbd className="kbd">D</kbd> anywhere to toggle — except while typing in a field
+        </p>
       </div>
     </div>
   );

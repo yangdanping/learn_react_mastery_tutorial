@@ -84,7 +84,7 @@ export const UserProfile = () => {
           {randomNumber !== null && (
             <div className="mt-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>
               Random number: <strong>{randomNumber.toFixed(3)}</strong>
-              <span style={{ color: '#ff4444' }}> (&gt; 0.7 = Error)</span>
+              <span className="tint-text-destructive"> (&gt; 0.7 = Error)</span>
             </div>
           )}
           <CustomButton onClick={fetchUser} variant="secondary" className="mt-4">
@@ -105,7 +105,7 @@ export const UserProfile = () => {
           {randomNumber !== null && (
             <div className="text-center mt-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>
               Random number: <strong>{randomNumber.toFixed(3)}</strong>
-              <span style={{ color: '#22c55e' }}> (≤ 0.7 = Success)</span>
+              <span className="tint-text-success"> (≤ 0.7 = Success)</span>
             </div>
           )}
           <div className="mt-4">

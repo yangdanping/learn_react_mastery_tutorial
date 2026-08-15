@@ -7,18 +7,17 @@
 
 'use client';
 
-import React, { createContext, use, useState, useCallback, useEffect } from 'react';
+import React, { createContext, use, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
-// Theme context type definition
+import { applyTheme, getPreferredTheme, getThemeFromDom, isTheme, readStoredTheme, THEME_CHANGE_EVENT, THEME_STORAGE_KEY, type Theme } from '../lib/theme';
+
 export interface ThemeContextType {
-  theme: string;
+  theme: Theme;
   toggleTheme: () => void;
 }
 
-// Create the theme context
 export const ThemeContext = createContext<ThemeContextType | null>(null);
 
-// Custom hook to use theme context with error checking
 export const useTheme = (): ThemeContextType => {
   const context = use(ThemeContext);
   if (!context) {
@@ -27,20 +26,79 @@ export const useTheme = (): ThemeContextType => {
   return context;
 };
 
-// Theme provider component
+function subscribeTheme(onStoreChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== THEME_STORAGE_KEY && event.key !== null) return;
+    if (isTheme(event.newValue)) {
+      applyTheme(event.newValue, { persist: false });
+      return;
+    }
+    onStoreChange();
+  };
+
+  window.addEventListener('storage', onStorage);
+  window.addEventListener(THEME_CHANGE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener('storage', onStorage);
+    window.removeEventListener(THEME_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+function getServerThemeSnapshot(): Theme {
+  return 'light';
+}
+
+function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
+}
+
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState('light'); // 定义控制全局主题的state
+  const theme = useSyncExternalStore(subscribeTheme, getThemeFromDom, getServerThemeSnapshot);
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      return prev === 'light' ? 'dark' : 'light';
-    });
+    applyTheme(getThemeFromDom() === 'light' ? 'dark' : 'light');
   }, []);
 
-  // Apply theme class to body element
   useEffect(() => {
-    document.body.className = theme;
-  }, [theme]);
+    applyTheme(getPreferredTheme(), { persist: false });
+  }, []);
 
-  return <ThemeContext value={{ theme, toggleTheme }}>{children}</ThemeContext>;
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const onSchemeChange = () => {
+      if (readStoredTheme()) return;
+      applyTheme(media.matches ? 'dark' : 'light', { persist: false });
+    };
+
+    media.addEventListener('change', onSchemeChange);
+    return () => media.removeEventListener('change', onSchemeChange);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key !== 'd' && event.key !== 'D') return;
+      if (isTypingTarget(event.target)) return;
+
+      event.preventDefault();
+      toggleTheme();
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [toggleTheme]);
+
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
+  return (
+    <ThemeContext value={value}>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {theme} theme
+      </div>
+      {children}
+    </ThemeContext>
+  );
 };
