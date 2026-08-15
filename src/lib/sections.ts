@@ -54,3 +54,7 @@ export const TUTORIAL_SECTIONS: TutorialSection[] = SECTION_DEFS.map((section) =
   ...section,
   id: toAnchorId(section.title)
 }));
+
+export function isTutorialSectionId(id: string): boolean {
+  return TUTORIAL_SECTIONS.some((section) => section.id === id);
+}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Dashboard from './Dashboard';
 import { HeaderThemeControl } from './HeaderThemeControl';
 import { TUTORIAL_SECTIONS } from '../lib/sections';
+import { resolveInitialTutorialPrefs, writeTutorialPrefs } from '../lib/tutorial-prefs';
 
 function isTypingTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
@@ -36,6 +37,7 @@ function ZenIcon() {
 export const TutorialShell = () => {
   const [zenMode, setZenMode] = useState(false);
   const [activeId, setActiveId] = useState(TUTORIAL_SECTIONS[0]?.id ?? '');
+  const [prefsReady, setPrefsReady] = useState(false);
   const wasZen = useRef(false);
 
   const toggleZen = useCallback(() => {
@@ -49,6 +51,31 @@ export const TutorialShell = () => {
   const exitZen = useCallback(() => {
     setZenMode(false);
   }, []);
+
+  useEffect(() => {
+    const prefs = resolveInitialTutorialPrefs();
+    setActiveId(prefs.activeId);
+    setZenMode(prefs.zenMode);
+
+    if (window.location.hash.slice(1) !== prefs.activeId) {
+      history.replaceState(null, '', `#${prefs.activeId}`);
+    }
+
+    if (!prefs.zenMode) {
+      requestAnimationFrame(() => {
+        document.getElementById(prefs.activeId)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        setPrefsReady(true);
+      });
+      return;
+    }
+
+    setPrefsReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!prefsReady) return;
+    writeTutorialPrefs({ activeId, zenMode });
+  }, [prefsReady, activeId, zenMode]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -66,6 +93,8 @@ export const TutorialShell = () => {
   }, [toggleZen]);
 
   useEffect(() => {
+    if (!prefsReady) return;
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const behavior: ScrollBehavior = reduceMotion ? 'auto' : 'smooth';
 
@@ -81,7 +110,7 @@ export const TutorialShell = () => {
     requestAnimationFrame(() => {
       document.getElementById(activeId)?.scrollIntoView({ behavior, block: 'start' });
     });
-  }, [zenMode, activeId]);
+  }, [prefsReady, zenMode, activeId]);
 
   const focusedSection = TUTORIAL_SECTIONS.find((section) => section.id === activeId) ?? TUTORIAL_SECTIONS[0];
 
@@ -143,6 +172,7 @@ export const TutorialShell = () => {
           tocSide="right"
           zenMode={zenMode}
           activeId={activeId}
+          prefsReady={prefsReady}
           onActiveIdChange={setActiveId}
           onEnterZen={enterZen}
         />

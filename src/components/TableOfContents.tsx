@@ -10,6 +10,7 @@ export interface TableOfContentsProps {
   side?: TocSide;
   items?: TutorialSection[];
   activeId: string;
+  observe?: boolean;
   onActiveIdChange: (id: string) => void;
   onEnterZen?: () => void;
 }
@@ -114,6 +115,7 @@ export const TableOfContents = ({
   side = 'right',
   items = TUTORIAL_SECTIONS,
   activeId,
+  observe = true,
   onActiveIdChange,
   onEnterZen
 }: TableOfContentsProps) => {
@@ -125,6 +127,8 @@ export const TableOfContents = ({
   const dialogHeadingId = useId();
 
   useEffect(() => {
+    if (!observe) return;
+
     const sections = items.map((item) => document.getElementById(item.id)).filter((el): el is HTMLElement => Boolean(el));
     if (sections.length === 0) return;
 
@@ -147,11 +151,6 @@ export const TableOfContents = ({
 
     sections.forEach((section) => observer.observe(section));
 
-    const hash = window.location.hash.slice(1);
-    if (hash && items.some((item) => item.id === hash)) {
-      onActiveIdChange(hash);
-    }
-
     const onScroll = () => {
       const doc = document.documentElement;
       const atBottom = window.innerHeight + window.scrollY >= doc.scrollHeight - 48;
@@ -163,7 +162,7 @@ export const TableOfContents = ({
       observer.disconnect();
       window.removeEventListener('scroll', onScroll);
     };
-  }, [items, onActiveIdChange]);
+  }, [observe, items, onActiveIdChange]);
 
   const closeDialog = useCallback(() => {
     dialogRef.current?.close();

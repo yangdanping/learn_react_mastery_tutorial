@@ -26,6 +26,7 @@ interface DashboardProps {
   tocSide?: TocSide;
   zenMode: boolean;
   activeId: string;
+  prefsReady: boolean;
   onActiveIdChange: (id: string) => void;
   onEnterZen: () => void;
 }
@@ -86,6 +87,7 @@ const Dashboard = ({
   tocSide = 'right',
   zenMode,
   activeId,
+  prefsReady,
   onActiveIdChange,
   onEnterZen
 }: DashboardProps) => {
@@ -96,6 +98,7 @@ const Dashboard = ({
           side={tocSide}
           items={TUTORIAL_SECTIONS}
           activeId={activeId}
+          observe={prefsReady}
           onActiveIdChange={onActiveIdChange}
           onEnterZen={onEnterZen}
         />

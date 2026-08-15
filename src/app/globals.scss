@@ -681,6 +681,41 @@ p {
   }
 }
 
+$tutorial-section-ids: (
+  'state-management',
+  'component-architecture',
+  'conditional-rendering',
+  'data-display',
+  'user-interaction',
+  'global-state',
+  'advanced-patterns'
+);
+
+html.is-zen {
+  .header,
+  .footer,
+  .toc-desktop,
+  .toc-fab {
+    display: none;
+  }
+
+  .tutorial-section {
+    display: none !important;
+    margin-bottom: 0;
+  }
+
+  .dashboard-center {
+    min-height: calc(100vh - 3.5rem);
+    padding: 1.5rem 0 3rem;
+  }
+}
+
+@each $id in $tutorial-section-ids {
+  html.is-zen[data-tutorial-section='#{$id}'] ##{$id} {
+    display: flex !important;
+  }
+}
+
 .is-zen .dashboard-center {
   min-height: calc(100vh - 3.5rem);
   padding: 1.5rem 0 3rem;
