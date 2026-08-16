@@ -1,0 +1,169 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { Counter } from './01_Counter(useState示例)';
+import { Clock } from './02_Clock(useEffect示例)';
+import { ButtonShowcase } from './03_ButtonShowcase(Props示例)';
+import { UserProfile } from './04_UserProfile(条件渲染示例)';
+import { TodoList } from './05_TodoList(列表渲染示例)';
+import { ContactForm } from './06_ContactForm(表单处理示例)';
+import { ThemeToggle } from './07_ThemeToggle(Context API示例)';
+import { NotesWidget } from './08_NotesWidget(自定义Hooks示例)';
+import { HeaderThemeControl } from './HeaderThemeControl';
+import { Section } from './Section';
+import { useSectionShortcuts } from '@/hooks/use-section-shortcuts';
+import {
+  getAdjacentSectionId,
+  readTutorialPrefs,
+  resolveInitialSectionId,
+  writeTutorialPrefs
+} from '@/lib/tutorial-navigation';
+import { isTutorialSectionId, TUTORIAL_SECTIONS } from '@/lib/sections';
+
+function renderSectionBody(id: string) {
+  switch (id) {
+    case 'state-management':
+      return (
+        <>
+          <Counter />
+          <Clock />
+        </>
+      );
+    case 'component-architecture':
+      return <ButtonShowcase />;
+    case 'conditional-rendering':
+      return <UserProfile />;
+    case 'data-display':
+      return <TodoList />;
+    case 'user-interaction':
+      return <ContactForm />;
+    case 'global-state':
+      return <ThemeToggle />;
+    case 'advanced-patterns':
+      return <NotesWidget />;
+    default:
+      return null;
+  }
+}
+
+function getInitialSectionId() {
+  const stored = readTutorialPrefs(localStorage, TUTORIAL_SECTIONS);
+  return resolveInitialSectionId(window.location.hash, stored, TUTORIAL_SECTIONS);
+}
+
+export function TutorialWorkspace() {
+  const [activeId, setActiveId] = useState(getInitialSectionId);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const activeIndex = TUTORIAL_SECTIONS.findIndex((section) => section.id === activeId);
+  const activeSection = TUTORIAL_SECTIONS[activeIndex] ?? TUTORIAL_SECTIONS[0];
+  const canPrevious = activeIndex > 0;
+  const canNext = activeIndex >= 0 && activeIndex < TUTORIAL_SECTIONS.length - 1;
+
+  const commitSection = useCallback((id: string, historyMode: 'push' | 'replace' | 'none' = 'push') => {
+    if (!isTutorialSectionId(id)) return;
+    setActiveId(id);
+    writeTutorialPrefs(localStorage, { activeId: id });
+
+    if (historyMode === 'push' && window.location.hash.slice(1) !== id) {
+      history.pushState(null, '', `#${id}`);
+    }
+    if (historyMode === 'replace' && window.location.hash.slice(1) !== id) {
+      history.replaceState(null, '', `#${id}`);
+    }
+  }, []);
+
+  const goPrevious = useCallback(() => {
+    commitSection(getAdjacentSectionId(activeId, -1, TUTORIAL_SECTIONS));
+  }, [activeId, commitSection]);
+
+  const goNext = useCallback(() => {
+    commitSection(getAdjacentSectionId(activeId, 1, TUTORIAL_SECTIONS));
+  }, [activeId, commitSection]);
+
+  useSectionShortcuts({ canPrevious, canNext, onPrevious: goPrevious, onNext: goNext });
+
+  useEffect(() => {
+    commitSection(activeId, 'replace');
+  }, [activeId, commitSection]);
+
+  useEffect(() => {
+    const restoreFromLocation = () => {
+      const id = window.location.hash.slice(1);
+      if (isTutorialSectionId(id)) commitSection(id, 'none');
+    };
+
+    window.addEventListener('popstate', restoreFromLocation);
+    window.addEventListener('hashchange', restoreFromLocation);
+    return () => {
+      window.removeEventListener('popstate', restoreFromLocation);
+      window.removeEventListener('hashchange', restoreFromLocation);
+    };
+  }, [commitSection]);
+
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }, [activeId]);
+
+  const progress = useMemo(() => `${activeIndex + 1} / ${TUTORIAL_SECTIONS.length}`, [activeIndex]);
+  if (!activeSection) return null;
+
+  return (
+    <div className="tutorial-workspace">
+      <header className="workspace-header">
+        <div className="workspace-header-inner">
+          <div>
+            <p className="eyebrow">REACT MASTERY · FOCUSED TUTORIAL</p>
+            <h1>逐章练习，让每一次 render 都有上下文</h1>
+          </div>
+          <HeaderThemeControl />
+        </div>
+      </header>
+
+      <main className="workspace-main">
+        <div className="workspace-progress" aria-live="polite">
+          <span>{progress}</span>
+          <span>使用 A / D 切换章节</span>
+        </div>
+
+        <Section
+          key={activeSection.id}
+          id={activeSection.id}
+          number={activeSection.number}
+          title={activeSection.title}
+          description={activeSection.description}
+          headingRef={headingRef}
+        >
+          {renderSectionBody(activeSection.id)}
+        </Section>
+
+        <nav className="chapter-navigation" aria-label="Chapter navigation">
+          <button
+            type="button"
+            className="chapter-nav-button"
+            onClick={goPrevious}
+            disabled={!canPrevious}
+            aria-label="Previous chapter"
+            aria-keyshortcuts="a"
+          >
+            <ArrowLeft aria-hidden="true" />
+            <span>上一章</span>
+            <kbd>A</kbd>
+          </button>
+          <button
+            type="button"
+            className="chapter-nav-button chapter-nav-button--next"
+            onClick={goNext}
+            disabled={!canNext}
+            aria-label="Next chapter"
+            aria-keyshortcuts="d"
+          >
+            <span>下一章</span>
+            <kbd>D</kbd>
+            <ArrowRight aria-hidden="true" />
+          </button>
+        </nav>
+      </main>
+    </div>
+  );
+}

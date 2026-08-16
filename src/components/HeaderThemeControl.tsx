@@ -12,13 +12,12 @@ export const HeaderThemeControl = () => {
       className="theme-switch"
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      title="Press D to toggle theme"
+      title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
     >
       <span aria-hidden="true">{isDark ? '☀️' : '🌙'}</span>
       <span className="theme-switch-label" suppressHydrationWarning>
         {isDark ? 'Light' : 'Dark'}
       </span>
-      <kbd className="kbd">D</kbd>
     </button>
   );
 };

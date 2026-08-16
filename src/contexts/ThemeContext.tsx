@@ -49,12 +49,6 @@ function getServerThemeSnapshot(): Theme {
   return 'light';
 }
 
-function isTypingTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName;
-  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
-}
-
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const theme = useSyncExternalStore(subscribeTheme, getThemeFromDom, getServerThemeSnapshot);
 
@@ -76,20 +70,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     media.addEventListener('change', onSchemeChange);
     return () => media.removeEventListener('change', onSchemeChange);
   }, []);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      if (event.key !== 'd' && event.key !== 'D') return;
-      if (isTypingTarget(event.target)) return;
-
-      event.preventDefault();
-      toggleTheme();
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [toggleTheme]);
 
   const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
 

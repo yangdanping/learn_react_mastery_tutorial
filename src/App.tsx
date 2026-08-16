@@ -1,10 +1,10 @@
-import { TutorialShell } from '@/components/TutorialShell';
+import { TutorialWorkspace } from '@/components/TutorialWorkspace';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 
 export function App() {
   return (
     <ThemeProvider>
-      <TutorialShell />
+      <TutorialWorkspace />
     </ThemeProvider>
   );
 }
