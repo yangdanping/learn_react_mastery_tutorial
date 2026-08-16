@@ -4,6 +4,24 @@
   color: var(--foreground);
 }
 
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 60;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--ring);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  color: var(--foreground);
+  font-weight: 650;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 .workspace-header {
   border-bottom: 1px solid var(--border);
   background: color-mix(in oklch, var(--background) 92%, transparent);
@@ -299,6 +317,12 @@
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.note-item,
+.message-content {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .todo-item {

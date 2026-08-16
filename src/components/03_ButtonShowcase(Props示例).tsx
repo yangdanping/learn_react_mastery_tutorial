@@ -33,9 +33,9 @@ import { Title } from './Title';
 export const CustomButton = memo((props: ButtonProps) => {
   // 🐍 Python: Like function parameters with defaults(就像带默认值的函数参数)
   // def button(variant='primary', children=None, on_click=None, disabled=False):
-  const { variant = 'primary', children, onClick, disabled = false, type = 'button', style, className } = props;
+  const { variant = 'primary', children, className, type = 'button', ...buttonProps } = props;
   return (
-    <button className={`btn btn-${variant} ${className || ''}`} onClick={onClick} disabled={disabled} type={type} style={style}>
+    <button {...buttonProps} className={`btn btn-${variant} ${className || ''}`} type={type}>
       {children}
     </button>
   );

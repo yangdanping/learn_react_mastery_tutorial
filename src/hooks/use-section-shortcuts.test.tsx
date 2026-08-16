@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { useSectionShortcuts } from './use-section-shortcuts';
 
@@ -11,7 +11,17 @@ interface HarnessProps {
 
 function Harness({ canPrevious = true, canNext = true, onPrevious, onNext }: HarnessProps) {
   useSectionShortcuts({ canPrevious, canNext, onPrevious, onNext });
-  return <input aria-label="editable target" />;
+  return (
+    <>
+      <input aria-label="editable target" />
+      <div data-testid="empty-contenteditable">
+        <span>editable content</span>
+      </div>
+      <div contentEditable="plaintext-only" suppressContentEditableWarning>
+        plaintext content
+      </div>
+    </>
+  );
 }
 
 describe('useSectionShortcuts', () => {
@@ -36,8 +46,12 @@ describe('useSectionShortcuts', () => {
     fireEvent.keyDown(document, { key: 'd', metaKey: true });
     fireEvent.keyDown(document, { key: 'd', ctrlKey: true });
     fireEvent.keyDown(document, { key: 'a', altKey: true });
+    fireEvent.keyDown(document, { key: 'd', shiftKey: true });
     fireEvent.keyDown(document, { key: 'a', repeat: true });
     fireEvent.keyDown(document, { key: 'd', isComposing: true });
+    screen.getByTestId('empty-contenteditable').setAttribute('contenteditable', '');
+    fireEvent.keyDown(screen.getByText('editable content'), { key: 'a' });
+    fireEvent.keyDown(screen.getByText('plaintext content'), { key: 'd' });
 
     expect(onPrevious).not.toHaveBeenCalled();
     expect(onNext).not.toHaveBeenCalled();

@@ -54,8 +54,16 @@ function renderSectionBody(id: string) {
   }
 }
 
+function getTutorialStorage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
 function getInitialSectionId() {
-  const stored = readTutorialPrefs(localStorage, TUTORIAL_SECTIONS);
+  const stored = readTutorialPrefs(getTutorialStorage(), TUTORIAL_SECTIONS);
   return resolveInitialSectionId(window.location.hash, stored, TUTORIAL_SECTIONS);
 }
 
@@ -72,7 +80,7 @@ export function TutorialWorkspace() {
   const commitSection = useCallback((id: string, historyMode: 'push' | 'replace' | 'none' = 'push') => {
     if (!isTutorialSectionId(id)) return;
     setActiveId(id);
-    writeTutorialPrefs(localStorage, { activeId: id });
+    writeTutorialPrefs(getTutorialStorage(), { activeId: id });
 
     if (historyMode === 'push' && window.location.hash.slice(1) !== id) {
       history.pushState(null, '', `#${id}`);
@@ -134,6 +142,9 @@ export function TutorialWorkspace() {
 
   return (
     <div className="tutorial-workspace">
+      <a className="skip-link" href="#tutorial-main">
+        跳到当前学习章节
+      </a>
       <header className="workspace-header">
         <div className="workspace-header-inner">
           <div>
@@ -179,7 +190,7 @@ export function TutorialWorkspace() {
         </div>
       </header>
 
-      <main className="workspace-main">
+      <main id="tutorial-main" className="workspace-main">
         <div className="workspace-progress" aria-live="polite">
           <span>{progress}</span>
           <span>使用 A / D 切换章节</span>

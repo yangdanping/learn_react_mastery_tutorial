@@ -13,6 +13,10 @@ describe('React tutorial workspace', () => {
   it('mounts exactly one chapter and exposes bounded navigation controls', () => {
     render(<App />);
 
+    expect(screen.getByRole('link', { name: '跳到当前学习章节' })).toHaveAttribute(
+      'href',
+      '#tutorial-main'
+    );
     expect(screen.getByRole('heading', { level: 2, name: 'State Management' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 2, name: 'Component Architecture' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /previous chapter/i })).toBeDisabled();
@@ -83,5 +87,23 @@ describe('React tutorial workspace', () => {
 
     expect(screen.queryByRole('dialog', { name: /章节目录/i })).not.toBeInTheDocument();
     await waitFor(() => expect(heading).toHaveFocus());
+  });
+
+  it('falls back safely when the localStorage getter is unavailable', () => {
+    const storageDescriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
+
+    try {
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        get() {
+          throw new DOMException('Storage unavailable', 'SecurityError');
+        }
+      });
+
+      expect(() => render(<App />)).not.toThrow();
+      expect(screen.getByRole('heading', { level: 2, name: 'State Management' })).toBeInTheDocument();
+    } finally {
+      if (storageDescriptor) Object.defineProperty(window, 'localStorage', storageDescriptor);
+    }
   });
 });

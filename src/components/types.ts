@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 // 通用标题组件
 export interface TitleProps {
@@ -7,14 +7,9 @@ export interface TitleProps {
   patternBadge: string;
 }
 
-export interface ButtonProps {
+export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   variant?: 'primary' | 'secondary' | 'destructive';
   children: ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
-  style?: CSSProperties;
-  className?: string;
 }
 
 // 04_UserProfile(条件渲染示例)

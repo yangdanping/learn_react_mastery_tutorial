@@ -9,10 +9,11 @@ interface UseSectionShortcutsOptions {
 
 function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
-  return (
-    target.matches('input, textarea, select, [contenteditable="true"]') ||
-    target.closest('[contenteditable="true"]') !== null
-  );
+  if (target.matches('input, textarea, select') || target.isContentEditable) return true;
+
+  const editableAncestor = target.closest('[contenteditable]');
+  if (!editableAncestor) return false;
+  return editableAncestor.getAttribute('contenteditable') !== 'false';
 }
 
 export function useSectionShortcuts({
@@ -23,7 +24,16 @@ export function useSectionShortcuts({
 }: UseSectionShortcutsOptions) {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat || event.isComposing || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (
+        event.repeat ||
+        event.isComposing ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
       if (isEditableTarget(event.target)) return;
 
       const key = event.key.toLowerCase();

@@ -32,9 +32,11 @@ function parsePrefs(raw: string | null, sections: readonly TutorialSection[]): T
 }
 
 export function readTutorialPrefs(
-  storage: ReadableStorage,
+  storage: ReadableStorage | null,
   sections: readonly TutorialSection[]
 ): TutorialPrefs {
+  if (!storage) return { activeId: firstSectionId(sections) };
+
   try {
     return (
       parsePrefs(storage.getItem(TUTORIAL_PREFS_STORAGE_KEY), sections) ??
@@ -47,7 +49,9 @@ export function readTutorialPrefs(
   }
 }
 
-export function writeTutorialPrefs(storage: WritableStorage, prefs: TutorialPrefs) {
+export function writeTutorialPrefs(storage: WritableStorage | null, prefs: TutorialPrefs) {
+  if (!storage) return;
+
   try {
     storage.setItem(TUTORIAL_PREFS_STORAGE_KEY, JSON.stringify({ activeId: prefs.activeId }));
   } catch {

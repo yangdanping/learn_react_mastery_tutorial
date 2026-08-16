@@ -50,6 +50,9 @@ export const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nextId, setNextId] = useState(1); // Counter for generating unique IDs
   const submissionTimer = useRef<number | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   // ❌ BAD: Inline functions create new functions every render(内联函数每次渲染都会创建新函数)
   // This causes child components to re-render unnecessarily(这会导致子组件发生不必要的重渲染)
@@ -86,7 +89,12 @@ export const ContactForm = () => {
     if (!formData.email.includes('@')) newErrors.email = 'Valid email required';
     if (!formData.message.trim()) newErrors.message = 'Message is required';
     const hasErrors = Object.keys(newErrors).length;
-    if (hasErrors) setErrors(newErrors);
+    if (hasErrors) {
+      setErrors(newErrors);
+      if (newErrors.name) nameInputRef.current?.focus();
+      else if (newErrors.email) emailInputRef.current?.focus();
+      else messageInputRef.current?.focus();
+    }
     return !hasErrors;
   }, [formData]);
 
@@ -147,7 +155,7 @@ export const ContactForm = () => {
       </p>
 
       {/* Side-by-side layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2">
         {/* Left side - Form */}
         <div>
           <h4 className="text-sm font-semibold mb-3" style={{ color: 'var(--muted-foreground)' }}>
@@ -160,20 +168,69 @@ export const ContactForm = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="mb-4">
-              <Input aria-label="Your name" name="name" value={formData.name} onChange={handleChange} placeholder="Your name" className="input" disabled={isSubmitting} />
-              {errors.name && <div className="error">{errors.name}</div>}
+              <Input
+                ref={nameInputRef}
+                id="contact-name"
+                aria-label="Your name"
+                aria-invalid={Boolean(errors.name)}
+                aria-describedby={errors.name ? 'contact-name-error' : undefined}
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Your name"
+                className="input"
+                disabled={isSubmitting}
+              />
+              {errors.name && (
+                <div id="contact-name-error" className="error" role="alert">
+                  {errors.name}
+                </div>
+              )}
             </div>
 
             <div className="mb-4">
-              <Input aria-label="Your email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="Your email" className="input" disabled={isSubmitting} />
-              {errors.email && <div className="error">{errors.email}</div>}
+              <Input
+                ref={emailInputRef}
+                id="contact-email"
+                aria-label="Your email"
+                aria-invalid={Boolean(errors.email)}
+                aria-describedby={errors.email ? 'contact-email-error' : undefined}
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Your email"
+                className="input"
+                disabled={isSubmitting}
+              />
+              {errors.email && (
+                <div id="contact-email-error" className="error" role="alert">
+                  {errors.email}
+                </div>
+              )}
             </div>
 
             <div className="mb-4">
-              <Textarea aria-label="Your message" name="message" value={formData.message} onChange={handleChange} placeholder="Your message" className="textarea" disabled={isSubmitting} />
-              {errors.message && <div className="error">{errors.message}</div>}
+              <Textarea
+                ref={messageInputRef}
+                id="contact-message"
+                aria-label="Your message"
+                aria-invalid={Boolean(errors.message)}
+                aria-describedby={errors.message ? 'contact-message-error' : undefined}
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Your message"
+                className="textarea"
+                disabled={isSubmitting}
+              />
+              {errors.message && (
+                <div id="contact-message-error" className="error" role="alert">
+                  {errors.message}
+                </div>
+              )}
             </div>
 
             <CustomButton type="submit" disabled={isSubmitting}>
@@ -183,7 +240,7 @@ export const ContactForm = () => {
         </div>
 
         {/* Right side - Submitted Data Display */}
-        <div>
+        <div className="min-w-0">
           <div className="flex justify-between items-center mb-4">
             <h4 className="text-lg font-bold" style={{ color: 'var(--foreground)' }}>
               📋 Message History
@@ -245,7 +302,7 @@ export const ContactForm = () => {
               {submittedDataList.map((submission, index) => (
                 <div
                   key={submission.id}
-                  className="group relative p-4 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
+                  className="group relative min-w-0 rounded-2xl p-4 transition-all duration-300 hover:scale-[1.02]"
                   style={{
                     background: 'var(--background)',
                     border: '1px solid var(--border)'
@@ -266,7 +323,8 @@ export const ContactForm = () => {
                     <CustomButton
                       variant="destructive"
                       onClick={() => handleDeleteSubmission(submission.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      className="opacity-0 transition-opacity duration-200 group-hover:opacity-100 focus-visible:opacity-100"
+                      aria-label={`Delete message ${submission.id} from ${submission.name}`}
                       style={{
                         fontSize: '11px',
                         padding: '4px 8px',
@@ -289,7 +347,7 @@ export const ContactForm = () => {
                         </span>
                       </div>
                       <div
-                        className="text-sm font-medium px-3 py-2 rounded-lg"
+                        className="message-content rounded-lg px-3 py-2 text-sm font-medium"
                         style={{
                           background: 'var(--muted)',
                           color: 'var(--foreground)'
@@ -306,7 +364,7 @@ export const ContactForm = () => {
                         </span>
                       </div>
                       <div
-                        className="text-sm font-mono px-3 py-2 rounded-lg"
+                        className="message-content rounded-lg px-3 py-2 font-mono text-sm"
                         style={{
                           background: 'var(--muted)',
                           color: 'var(--foreground)',
@@ -326,7 +384,7 @@ export const ContactForm = () => {
                           {submission.message.length} chars
                         </span>
                       </div>
-                      <div className="text-sm leading-relaxed px-3 py-2 rounded-lg" style={{ background: 'var(--muted)', color: 'var(--foreground)', lineHeight: '1.5' }}>
+                      <div className="message-content rounded-lg px-3 py-2 text-sm leading-relaxed" style={{ background: 'var(--muted)', color: 'var(--foreground)', lineHeight: '1.5' }}>
                         {submission.message}
                       </div>
                     </div>

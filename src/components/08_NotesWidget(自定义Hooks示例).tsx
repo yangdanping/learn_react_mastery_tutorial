@@ -27,10 +27,23 @@ import { Input } from './ui/input';
 import { Title } from './Title';
 import type { Note } from './types';
 
-type StoredNote = Note | string;
+function isNote(value: unknown): value is Note {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as { id?: unknown; text?: unknown };
+  return typeof candidate.id === 'string' && typeof candidate.text === 'string';
+}
 
-function normalizeNote(note: StoredNote, index: number): Note {
-  return typeof note === 'string' ? { id: `legacy-${index}-${note.length}`, text: note } : note;
+function normalizeStoredNotes(value: unknown): Note[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((note, index) => {
+    if (typeof note === 'string') return [{ id: `legacy-${index}-${note.length}`, text: note }];
+    return isNote(note) ? [note] : [];
+  });
+}
+
+function isCanonicalNotes(value: unknown): value is Note[] {
+  return Array.isArray(value) && value.every(isNote);
 }
 
 function createNoteId() {
@@ -45,12 +58,12 @@ function createNoteId() {
 // 说明：实际实现已迁移至 src/hooks/useLocalStorage.ts 以便更好组织
 
 export const NotesWidget = () => {
-  const [storedNotes, setStoredNotes] = useLocalStorage<StoredNote[]>('tutorial-notes', []);
+  const [storedNotes, setStoredNotes] = useLocalStorage<unknown>('tutorial-notes', []);
   const [newNote, setNewNote] = useState('');
-  const notes = useMemo(() => storedNotes.map(normalizeNote), [storedNotes]);
+  const notes = useMemo(() => normalizeStoredNotes(storedNotes), [storedNotes]);
 
   useEffect(() => {
-    if (storedNotes.some((note) => typeof note === 'string')) setStoredNotes(notes);
+    if (!isCanonicalNotes(storedNotes)) setStoredNotes(notes);
   }, [notes, setStoredNotes, storedNotes]);
 
   // ❌ BAD: Expensive calculation runs on every render (even when notes don't change)
@@ -77,7 +90,7 @@ export const NotesWidget = () => {
   const addNote = useCallback(() => {
     if (newNote.trim()) {
       const note: Note = { id: createNoteId(), text: newNote.trim() };
-      setStoredNotes((current) => [...current.map(normalizeNote), note]);
+      setStoredNotes((current: unknown) => [...normalizeStoredNotes(current), note]);
       setNewNote('');
     }
   }, [newNote, setStoredNotes]);
