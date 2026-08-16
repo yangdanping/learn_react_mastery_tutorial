@@ -20,10 +20,24 @@
 
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
+import { Input } from './ui/input';
 import { Title } from './Title';
+import type { Note } from './types';
+
+type StoredNote = Note | string;
+
+function normalizeNote(note: StoredNote, index: number): Note {
+  return typeof note === 'string' ? { id: `legacy-${index}-${note.length}`, text: note } : note;
+}
+
+function createNoteId() {
+  return typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
 
 // Custom hook - reusable logic
 // 自定义 hook —— 可复用逻辑
@@ -31,8 +45,13 @@ import { Title } from './Title';
 // 说明：实际实现已迁移至 src/hooks/useLocalStorage.ts 以便更好组织
 
 export const NotesWidget = () => {
-  const [notes, setNotes] = useLocalStorage<string[]>('tutorial-notes', []);
+  const [storedNotes, setStoredNotes] = useLocalStorage<StoredNote[]>('tutorial-notes', []);
   const [newNote, setNewNote] = useState('');
+  const notes = useMemo(() => storedNotes.map(normalizeNote), [storedNotes]);
+
+  useEffect(() => {
+    if (storedNotes.some((note) => typeof note === 'string')) setStoredNotes(notes);
+  }, [notes, setStoredNotes, storedNotes]);
 
   // ❌ BAD: Expensive calculation runs on every render (even when notes don't change)
   // ❌ 不佳：开销大的计算在每次渲染都会执行（即便 notes 未变）
@@ -48,24 +67,24 @@ export const NotesWidget = () => {
   // 🐍 Python: Like @lru_cache decorator
   // 🐍 Python 类比：类似 @lru_cache 装饰器
   const noteStats = useMemo(() => {
-    console.log('📊 Calculating note statistics...'); // You'll only see this when notes change
     return {
       total: notes.length,
-      long: notes.filter((note) => note.length > 10).length,
-      avgLength: notes.length > 0 ? Math.round(notes.reduce((sum, note) => sum + note.length, 0) / notes.length) : 0
+      long: notes.filter((note) => note.text.length > 10).length,
+      avgLength: notes.length > 0 ? Math.round(notes.reduce((sum, note) => sum + note.text.length, 0) / notes.length) : 0
     };
   }, [notes]);
 
   const addNote = useCallback(() => {
     if (newNote.trim()) {
-      setNotes([...notes, newNote.trim()]);
+      const note: Note = { id: createNoteId(), text: newNote.trim() };
+      setStoredNotes((current) => [...current.map(normalizeNote), note]);
       setNewNote('');
     }
-  }, [notes, newNote, setNotes]);
+  }, [newNote, setStoredNotes]);
 
   const clearNotes = useCallback(() => {
-    setNotes([]);
-  }, [setNotes]);
+    setStoredNotes([]);
+  }, [setStoredNotes]);
 
   return (
     <div className="widget">
@@ -99,12 +118,15 @@ export const NotesWidget = () => {
 
       <div className="mb-4">
         <div className="flex gap-2">
-          <input
+          <Input
+            aria-label="Add a note"
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             placeholder="Add a note..."
             className="input flex-1"
-            onKeyPress={(e) => e.key === 'Enter' && addNote()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') addNote();
+            }}
           />
           <CustomButton onClick={addNote}>Add</CustomButton>
         </div>
@@ -121,9 +143,9 @@ export const NotesWidget = () => {
             No notes yet. Add one above!
           </p>
         ) : (
-          notes.map((note, index) => (
-            <div key={index} className="note-item">
-              {note}
+          notes.map((note) => (
+            <div key={note.id} className="note-item">
+              {note.text}
             </div>
           ))
         )}

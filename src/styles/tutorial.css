@@ -301,6 +301,12 @@
   transition: background-color 150ms ease, border-color 150ms ease;
 }
 
+.todo-item {
+  width: 100%;
+  color: inherit;
+  text-align: left;
+}
+
 .todo-item:hover,
 .note-item:hover {
   border-color: var(--border);

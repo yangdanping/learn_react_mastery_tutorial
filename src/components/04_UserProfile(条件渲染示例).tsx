@@ -18,7 +18,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import type { User } from './types';
 import { Title } from './Title';
@@ -29,20 +29,28 @@ export const UserProfile = () => {
   const [error, setError] = useState<string | null>(null);
   const [randomNumber, setRandomNumber] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const requestTimer = useRef<number | null>(null);
 
-  const fetchUser = async () => {
+  const cancelPendingRequest = useCallback(() => {
+    if (requestTimer.current !== null) {
+      window.clearTimeout(requestTimer.current);
+      requestTimer.current = null;
+    }
+  }, []);
+
+  const fetchUser = useCallback(() => {
+    cancelPendingRequest();
     setLoading(true);
     setError(null);
     setUser(null);
     setRandomNumber(null);
 
     // Simulate API call
-    setTimeout(() => {
+    requestTimer.current = window.setTimeout(() => {
+      requestTimer.current = null;
       const random = generateRandomNumber(0, 1);
       // Store the random number in state to display in UI
       setRandomNumber(random);
-      console.log('04_UserProfile Random number: ', random);
-
       if (random > 0.7) {
         setError('Failed to load user data');
       } else {
@@ -50,11 +58,12 @@ export const UserProfile = () => {
       }
       setLoading(false);
     }, 1000);
-  };
+  }, [cancelPendingRequest]);
 
   useEffect(() => {
     fetchUser();
-  }, []);
+    return cancelPendingRequest;
+  }, [cancelPendingRequest, fetchUser]);
 
   // ❌ BAD: Shows everything at once - confusing to users!(一次性展示所有状态——极其混乱)
   // return (

@@ -41,8 +41,8 @@ export const Counter = () => {
   // ✅ GOOD: useState triggers automatic re-renders
   // ✅ 良好：useState 会触发自动重新渲染
   const [count, setCount] = useState(0);
-  const increment = () => setCount(count + 1);
-  const decrement = () => setCount(count - 1);
+  const increment = () => setCount((current) => current + 1);
+  const decrement = () => setCount((current) => current - 1);
   const reset = () => setCount(0);
 
   return (

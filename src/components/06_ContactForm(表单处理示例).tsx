@@ -12,10 +12,10 @@
 • 使用 onChange 让状态与输入保持同步
 • Validate inputs and show helpful error messages
 • 对输入进行校验并显示友好错误信息
-• useCallback prevents unnecessary re-renders in child components
-• useCallback 可避免子组件不必要的重渲染
-• Avoid inline functions in JSX for better performance
-• 尽量避免在 JSX 中写内联函数以提升性能
+• useCallback keeps a reference stable when a memoized child or dependency needs it
+• 当记忆化子组件或依赖项确实需要稳定引用时，再使用 useCallback
+• Inline JSX functions are usually fine; optimize only after measuring a real re-render cost
+• JSX 内联函数通常没有问题，应在确认存在实际重渲染成本后再优化
 • Store and display multiple submitted data entries for better user experience
 • 存储并展示多条提交记录，提升用户体验
 • Side-by-side layout for form and submitted data display
@@ -26,23 +26,30 @@
 
 'use client';
 
-import { useCallback, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
 import { Title } from './Title';
 import type { SubmittedFormData } from './types';
 import { generateRandomNumber } from '@/utils/getRamdomNum';
 
-export const ContactForm = () => {
-  const [formData, setFormData] = useState({
+function createInitialFormData() {
+  return {
     name: '',
     email: `${generateRandomNumber(1000, 9999)}@gmail.com`,
     message: ''
-  });
+  };
+}
+
+export const ContactForm = () => {
+  const [formData, setFormData] = useState(createInitialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submittedDataList, setSubmittedDataList] = useState<SubmittedFormData[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nextId, setNextId] = useState(1); // Counter for generating unique IDs
+  const submissionTimer = useRef<number | null>(null);
 
   // ❌ BAD: Inline functions create new functions every render(内联函数每次渲染都会创建新函数)
   // This causes child components to re-render unnecessarily(这会导致子组件发生不必要的重渲染)
@@ -54,8 +61,8 @@ export const ContactForm = () => {
 
   // In JSX: onChange={(e) => setFormData({...formData, name: e.target.value})}
   // JSX 中的写法如上
-  // Creates new function every render = performance issue!(每次渲染都创建新函数 = 性能问题！)
-  // ✅ GOOD: useCallback prevents unnecessary re-renders(useCallback 避免不必要的重渲染)
+  // A new inline function is not automatically a performance bug.
+  // 只有当引用稳定性影响 memoized child 或 Effect 依赖时，useCallback 才带来明确价值。
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
@@ -67,7 +74,13 @@ export const ContactForm = () => {
     [errors]
   );
 
-  const isFormValid = () => {
+  const reset = useCallback(() => {
+    setFormData(createInitialFormData());
+    setErrors({});
+    setIsSubmitting(false);
+  }, []);
+
+  const isFormValid = useCallback(() => {
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.includes('@')) newErrors.email = 'Valid email required';
@@ -75,35 +88,36 @@ export const ContactForm = () => {
     const hasErrors = Object.keys(newErrors).length;
     if (hasErrors) setErrors(newErrors);
     return !hasErrors;
-  };
+  }, [formData]);
 
   const handleSubmit = useCallback(
-    async (e: FormEvent) => {
+    (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       // 简单校验
       if (!isFormValid()) return;
       // Show loading state during submission(提交期间展示加载状态)
       setIsSubmitting(true);
 
-      return await new Promise((_resolve) => {
-        // Simulate API call delay(模拟 API 调用延迟)
-        setTimeout(() => {
-          // Create new submission with unique ID(创建带唯一 ID 的新提交记录)
-          const newSubmission: SubmittedFormData = {
-            id: nextId,
-            ...formData,
-            submittedAt: new Date().toLocaleString()
-          };
-          setSubmittedDataList((prev) => [newSubmission, ...prev]); // 添加到提交记录列表（最新在前）
-          setNextId((prev) => prev + 1); // 预生成唯一 ID,给下一次提交使用
-
-          // 清空表单并重置状态
-          reset();
-        }, 1000);
-      });
+      submissionTimer.current = window.setTimeout(() => {
+        submissionTimer.current = null;
+        const newSubmission: SubmittedFormData = {
+          id: nextId,
+          ...formData,
+          submittedAt: new Date().toLocaleString()
+        };
+        setSubmittedDataList((prev) => [newSubmission, ...prev]);
+        setNextId((prev) => prev + 1);
+        reset();
+      }, 1000);
     },
-    [formData, nextId]
+    [formData, isFormValid, nextId, reset]
   );
+
+  useEffect(() => {
+    return () => {
+      if (submissionTimer.current !== null) window.clearTimeout(submissionTimer.current);
+    };
+  }, []);
 
   // Delete specific submission by ID 通过 ID 删除指定提交记录
   const handleDeleteSubmission = useCallback((id: number) => {
@@ -112,7 +126,6 @@ export const ContactForm = () => {
 
   // Delete all submissions 删除所有提交记录
   const handleDeleteAll = useCallback(() => {
-    console.log('06_ContactForm(表单处理示例) handleDeleteAll 删除所有提交记录');
     setSubmittedDataList([]);
   }, []);
 
@@ -125,12 +138,6 @@ export const ContactForm = () => {
       avgMessageLength: submittedDataList.length ? Math.round(submittedDataList.reduce((sum, s) => sum + s.message.length, 0) / submittedDataList.length) : 0
     };
   }, [submittedDataList]);
-
-  const reset = () => {
-    setFormData({ name: '', email: `${generateRandomNumber(1000, 9999)}@gmail.com`, message: '' });
-    setErrors({});
-    setIsSubmitting(false);
-  };
 
   return (
     <div className="widget">
@@ -155,17 +162,17 @@ export const ContactForm = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <input name="name" value={formData.name} onChange={handleChange} placeholder="Your name" className="input" disabled={isSubmitting} />
+              <Input aria-label="Your name" name="name" value={formData.name} onChange={handleChange} placeholder="Your name" className="input" disabled={isSubmitting} />
               {errors.name && <div className="error">{errors.name}</div>}
             </div>
 
             <div className="mb-4">
-              <input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="Your email" className="input" disabled={isSubmitting} />
+              <Input aria-label="Your email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="Your email" className="input" disabled={isSubmitting} />
               {errors.email && <div className="error">{errors.email}</div>}
             </div>
 
             <div className="mb-4">
-              <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Your message" className="textarea" disabled={isSubmitting} />
+              <Textarea aria-label="Your message" name="message" value={formData.message} onChange={handleChange} placeholder="Your message" className="textarea" disabled={isSubmitting} />
               {errors.message && <div className="error">{errors.message}</div>}
             </div>
 
@@ -247,14 +254,7 @@ export const ContactForm = () => {
                   {/* Modern message header with gradient badge */}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-2">
-                      <div
-                        className="px-3 py-1 rounded-full text-xs font-bold"
-                        style={{
-                          background: index === 0 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                          color: 'white',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                        }}
-                      >
+                      <div className="px-3 py-1 rounded-full text-xs font-bold tint tint-primary tint-text-primary">
                         #{submission.id}
                       </div>
                       {index === 0 && (

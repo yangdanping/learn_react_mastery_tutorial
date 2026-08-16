@@ -23,66 +23,35 @@ import { Title } from './Title';
 
 export const Clock = () => {
   const [time, setTime] = useState<Date | null>(null);
-  const [showBadExample, setShowBadExample] = useState(false);
-  const [renderCount] = useState(0);
 
-  // // Track renders for demonstration
-  // useEffect(() => setRenderCount((prev) => prev + 1));
-
-  // // ❌ BAD: Side effect in render function (when demo is active)
-  // if (showBadExample) {
-  //   console.log(`🔥 重新渲染了 ${renderCount} 次: 创建了新timer...`);
-  //   setTimeout(() => {
-  //     setTime(new Date()); // This will trigger another render!(会触发重新渲染)
-  //   }, 1000);
-  // }
+  // ❌ BAD: Calling setTimeout during render creates another timer on every render.
+  // 不佳：在 render 中调用 setTimeout，会在每次渲染时创建新的计时器。
+  // This anti-pattern stays as source commentary instead of running in the page.
 
   // ✅ GOOD: useEffect handles side effects properly
   // ✅ 良好：使用 useEffect 正确处理副作用
   useEffect(() => {
-    if (!showBadExample) {
-      // Fix hydration mismatch by only setting time after client mount
-      // 通过仅在客户端挂载后设置时间来修复水合不匹配
-      setTime(new Date());
+    setTime(new Date());
 
-      // 🐍 Python: Like __enter__ in context manager(类比：类似上下文管理器中的 __enter__)
-      const timer = setInterval(() => setTime(new Date()), 1000);
+    // 🐍 Python: Like __enter__ in context manager(类比：类似上下文管理器中的 __enter__)
+    const timer = setInterval(() => setTime(new Date()), 1000);
 
-      // 🐍 Python: Like __exit__ in context manager (Python 类比：类似上下文管理器中的 __exit__)
-      return () => {
-        console.log('Clock 清理函数执行');
-        clearInterval(timer);
-      }; // 清理可防止内存泄漏
-    }
-  }, [showBadExample]); // Re-run when demo mode changes(当演示模式变化时重新运行)
+    // 🐍 Python: Like __exit__ in context manager (Python 类比：类似上下文管理器中的 __exit__)
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="widget">
       <Title icon="⏰" title="Live Clock" patternBadge="useEffect" />
 
-      {/* Demo Toggle(演示切换) */}
-      <div className="mb-4 text-center">
-        <button onClick={() => setShowBadExample(!showBadExample)} className={`btn ${showBadExample ? 'btn-destructive' : 'btn-secondary'}`}>
-          {showBadExample ? '🛑 Stop Bad Demo' : '🔥 Show Bad Example'}
-        </button>
+      <div className="rounded mb-4 p-3 tint tint-primary text-sm">
+        离开本章时组件会卸载，Effect cleanup 会立即清除 interval；错误写法保留在源码注释中。
       </div>
-
-      {/* Visual Feedback(可视化反馈) */}
-      {showBadExample && (
-        <div className="rounded mb-4 text-center p-2 tint tint-destructive">
-          <div className="text-sm font-bold tint-text-destructive">
-            ⚠️ Renders: {renderCount} | Check console!
-          </div>
-          <div className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
-            New timer created every render
-          </div>
-        </div>
-      )}
 
       <div className="text-center">
         <div className="text-2xl font-bold my-4">{time ? time.toLocaleTimeString() : '--:--:-- --'}</div>
         <p className="text-sm mb-0" style={{ color: 'var(--muted-foreground)' }}>
-          {showBadExample ? '🚨 Using setTimeout in render (creating memory leaks!)' : 'Updates every second with automatic cleanup'}
+          Updates every second with automatic cleanup
         </p>
       </div>
     </div>

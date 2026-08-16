@@ -5,7 +5,16 @@
  * Provides persistent state that survives page refreshes
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+
+function readStoredValue<T>(key: string, initialValue: T): T {
+  try {
+    const item = window.localStorage.getItem(key);
+    return item === null ? initialValue : (JSON.parse(item) as T);
+  } catch {
+    return initialValue;
+  }
+}
 
 /**
  * Custom hook to manage localStorage state
@@ -13,33 +22,26 @@ import { useState, useCallback, useEffect } from 'react';
  * @param initialValue - default value if no stored value exists
  * @returns [storedValue, setValue] - tuple similar to useState
  */
-export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T) => void] {
+export function useLocalStorage<T>(key: string, initialValue: T): [T, Dispatch<SetStateAction<T>>] {
   // 🐍 Python: Like creating a reusable function
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
-  const [mounted, setMounted] = useState(false);
+  const [storedValue, setStoredValue] = useState<T>(() => readStoredValue(key, initialValue));
+  const valueRef = useRef(storedValue);
 
   useEffect(() => {
-    setMounted(true);
+    valueRef.current = storedValue;
+  }, [storedValue]);
+
+  const setValue = useCallback<Dispatch<SetStateAction<T>>>((value) => {
+    const nextValue = typeof value === 'function' ? (value as (current: T) => T)(valueRef.current) : value;
+    valueRef.current = nextValue;
+    setStoredValue(nextValue);
+
     try {
-      const item = window.localStorage.getItem(key);
-      if (item) {
-        setStoredValue(JSON.parse(item));
-      }
-    } catch (error) {
-      console.error('Error reading from localStorage:', error);
+      window.localStorage.setItem(key, JSON.stringify(nextValue));
+    } catch {
+      // Keep React state usable even when storage is unavailable.
     }
   }, [key]);
 
-  const setValue = useCallback((value: T) => {
-    try {
-      setStoredValue(value);
-      if (mounted && typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(value));
-      }
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
-    }
-  }, [key, mounted]);
-
   return [storedValue, setValue];
-} 
+}

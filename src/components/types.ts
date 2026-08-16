@@ -1,3 +1,5 @@
+import type { CSSProperties, ReactNode } from 'react';
+
 // 通用标题组件
 export interface TitleProps {
   icon: string;
@@ -6,12 +8,12 @@ export interface TitleProps {
 }
 
 export interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'destructive' | 'Sean';
-  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'destructive';
+  children: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   className?: string;
 }
 
@@ -38,4 +40,9 @@ export interface SubmittedFormData {
   message: string;
   submittedAt: string; // Timestamp when form was submitted
   // 表单提交时的时间戳
+}
+
+export interface Note {
+  id: string;
+  text: string;
 }

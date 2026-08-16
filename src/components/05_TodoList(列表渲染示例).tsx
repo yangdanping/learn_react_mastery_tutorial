@@ -22,7 +22,13 @@ import { useState } from 'react';
 import type { Todo } from './types';
 import { Title } from './Title';
 import c from 'clsx';
-const ProgressBar = ({ completedCount, total }: any) => {
+
+interface ProgressBarProps {
+  completedCount: number;
+  total: number;
+}
+
+const ProgressBar = ({ completedCount, total }: ProgressBarProps) => {
   return (
     <>
       <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
@@ -51,7 +57,7 @@ export const TodoList = () => {
   ]);
 
   const toggleTodo = (id: number) => {
-    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
+    setTodos((current) => current.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
   };
 
   return (
@@ -61,7 +67,7 @@ export const TodoList = () => {
       <div className="mb-4">
         <ProgressBar completedCount={todos.filter((todo) => todo.completed).length} total={todos.length} />
       </div>
-      1{/* ❌ BAD: No keys - React gets confused when list changes(没有 key —— 列表变化时 React 难以追踪) */}
+      {/* ❌ BAD: No keys - React gets confused when list changes(没有 key —— 列表变化时 React 难以追踪) */}
       {/* <div>
         <h3>This is the bad example</h3>
         {todos.map(todo =>  <div onClick={() => toggleTodo(todo.id)} className="todo-item">...</div> )}
@@ -70,9 +76,15 @@ export const TodoList = () => {
       <div>
         <h3>This is the good example</h3>
         {todos.map((todo) => (
-          <div key={todo.id} onClick={() => toggleTodo(todo.id)} className={c('todo-item', { 'todo-completed': todo.completed })}>
+          <button
+            key={todo.id}
+            type="button"
+            aria-pressed={todo.completed}
+            onClick={() => toggleTodo(todo.id)}
+            className={c('todo-item', { 'todo-completed': todo.completed })}
+          >
             <span className="mr-2">{todo.completed ? '✅' : '⬜'}</span> <span>{todo.text}</span>
-          </div>
+          </button>
         ))}
       </div>
     </div>

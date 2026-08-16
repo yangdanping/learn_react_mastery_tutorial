@@ -60,7 +60,7 @@ export const ThemeToggle = () => {
         </div>
         <CustomButton onClick={toggleTheme}>Switch to {theme === 'light' ? '🌙 Dark' : '☀️ Light'} mode</CustomButton>
         <p className="theme-hotkey-hint">
-          Press <kbd className="kbd">D</kbd> anywhere to toggle — except while typing in a field
+          Theme choice persists independently; <kbd className="kbd">A</kbd> / <kbd className="kbd">D</kbd> remain reserved for chapter navigation.
         </p>
       </div>
     </div>
