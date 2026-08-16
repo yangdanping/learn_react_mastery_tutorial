@@ -2,8 +2,6 @@
 // SECTION COMPONENT FOR ORGANIZATION
 // =====================================
 
-'use client';
-
 import type { ReactNode, Ref } from 'react';
 
 interface SectionProps {

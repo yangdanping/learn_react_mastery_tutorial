@@ -24,8 +24,6 @@
 • 使用数组状态管理多条记录
 */
 
-'use client';
-
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { CustomButton } from './03_ButtonShowcase(Props示例)';

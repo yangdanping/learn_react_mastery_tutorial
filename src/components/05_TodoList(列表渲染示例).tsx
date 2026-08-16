@@ -16,8 +16,6 @@
 • 当列表顺序变化时，使用索引作为 key 可能导致问题
 */
 
-'use client';
-
 import { useState } from 'react';
 import type { Todo } from './types';
 import { Title } from './Title';

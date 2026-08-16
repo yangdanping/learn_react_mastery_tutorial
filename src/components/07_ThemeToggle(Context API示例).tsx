@@ -16,8 +16,6 @@
 • 使用前务必检查 context 是否存在
 */
 
-'use client';
-
 import { useTheme } from '../contexts/ThemeContext';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import { Title } from './Title';

@@ -18,8 +18,6 @@
 • 将 localStorage 封装为自定义 hook 是极佳用例
 */
 
-'use client';
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';

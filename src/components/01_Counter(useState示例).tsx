@@ -14,8 +14,6 @@
 • 总是使用 setState 函数，不要直接修改 state
 */
 
-'use client';
-
 import { useState } from 'react';
 import { Title } from './Title';
 

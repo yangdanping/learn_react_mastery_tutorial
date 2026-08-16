@@ -16,8 +16,6 @@
 • 异步操作中，加载状态可提升用户体验
 */
 
-'use client';
-
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import type { User } from './types';

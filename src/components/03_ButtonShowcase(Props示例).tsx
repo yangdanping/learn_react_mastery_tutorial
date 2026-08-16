@@ -16,8 +16,6 @@
 • 组件组合能用简单拼装构建复杂 UI
 */
 
-'use client';
-
 import { memo } from 'react';
 import type { ButtonProps } from './types';
 import { Title } from './Title';

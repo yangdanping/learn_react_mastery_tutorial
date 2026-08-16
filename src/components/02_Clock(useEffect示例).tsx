@@ -16,8 +16,6 @@
 • 组件卸载时会执行 useEffect 的清理函数
 */
 
-'use client';
-
 import { useEffect, useState } from 'react';
 import { Title } from './Title';
 
