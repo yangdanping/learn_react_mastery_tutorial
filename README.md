@@ -1,258 +1,92 @@
-# 🚀 NextJS React Mastery Tutorial - Top 8 Patterns That Cover 95% of Use Cases
+# React Mastery Focused Tutorial
 
-A progressive React tutorial designed for **vibe coders** and developers who want to master React fundamentals through practical examples.
+一个用于复习 React 基础的单章节学习工作台。它保留原教程的八个交互示例，但每次只挂载当前章节，避免多个 render 日志、Effect、计时器和临时状态互相干扰。
 
-📹 Full YouTube Guide: [Youtube link](https://www.youtube.com/watch?v=vZzFlAjz4rA&list=PLE9hy4A7ZTmpGq7GHf5tgGFWh2277AeDR&index=15)
+原始视频教程：[YouTube Guide](https://www.youtube.com/watch?v=vZzFlAjz4rA&list=PLE9hy4A7ZTmpGq7GHf5tgGFWh2277AeDR&index=15)。当前仓库在原项目基础上增加了聚焦式导航、持久化、可访问性、测试和 Vite/shadcn 迁移。
 
-🚀 X Post: [X link](https://x.com/ShenSeanChen/status/1944140266501284092)
+## 使用方式
 
-💻 Launch Full Stack Product: [Github Repo](https://github.com/ShenSeanChen/launch-mvp-stripe-nextjs-supabase)
+- `A`：上一章；`D`：下一章。输入框、文本域、组合输入、长按和带修饰键的操作不会触发切章。
+- 页面底部始终有上一章、下一章按钮。
+- 顶部“目录”会打开 shadcn Sheet，可直接跳转任意章节。
+- URL hash 可直接定位章节，浏览器前进/后退可恢复章节。
+- 第一章和最后一章不会循环跳转。
 
-☕️ Buy me a coffee: [Cafe Latte](https://buy.stripe.com/5kA176bA895ggog4gh)
+持久化范围是有意收敛的：
 
-🤖️ Discord: [Invite link](https://discord.com/invite/TKKPzZheua)
+| 内容 | 刷新后 | 离开章节再返回 |
+| --- | --- | --- |
+| 主题 | 保留 | 保留 |
+| 当前章节 | 保留 | — |
+| Smart Notes | 保留 | 保留 |
+| Counter、Todo、ContactForm 等临时状态 | 不保留 | 重置 |
 
-## 🎯 Why This Tutorial Exists
+只挂载当前章节意味着离开章节时会真实执行 Effect cleanup。Clock interval、模拟用户请求和表单提交 timer 都有回归测试，隐藏章节不会继续在后台运行。
 
-Many developers using AI coding tools like **Cursor**, **Lovable**, and **v0** get stuck because they don't understand the fundamental React concepts. This tutorial teaches the **8 essential patterns** that power 95% of React applications.
+## 本地运行
 
-## 📚 What You'll Learn
+需要 Node.js 20.19+ 或 22.12+，并使用 pnpm：
 
-### **🔥 Top 8 React Patterns**
-
-1. **useState + useEffect** - State management & side effects
-2. **Component Composition & Props** - Reusable UI components  
-3. **Conditional Rendering** - Loading states, error states, feature flags
-4. **List Rendering & Keys** - Displaying arrays efficiently
-5. **Event Handling** - User interactions (clicks, forms, keyboard)
-6. **Form Handling & Validation** - User input collection
-7. **Context API** - Global state management
-8. **Custom Hooks** - Reusable logic extraction
-
-## 🎬 Tutorial Structure (Perfect for 40-minute video)
-
-### **Part 1: Foundation (12 minutes)**
-- **Pattern 1**: useState/useEffect in Counter widget
-- **Pattern 2**: Side effects in Clock widget
-- **Pattern 3**: Props & composition in Button component
-
-### **Part 2: Data Handling (12 minutes)**
-- **Pattern 4**: Conditional rendering in UserProfile widget
-- **Pattern 5**: List rendering in TodoList widget
-- **Pattern 6**: Event handling in ContactForm widget
-
-### **Part 3: Advanced Patterns (12 minutes)**
-- **Pattern 7**: Context API in ThemeToggle widget
-- **Pattern 8**: Custom hooks in NotesWidget
-
-### **Part 4: Integration (4 minutes)**
-- **Demo**: All patterns working together
-- **Next Steps**: Building real applications
-
-## 🚀 Getting Started
-
-### 1. **Install Dependencies**
 ```bash
-npm install
+pnpm install
+pnpm dev
 ```
 
-### 2. **Start Development Server**
+打开 [http://localhost:3001](http://localhost:3001)。
+
+完整验证：
+
 ```bash
-npm run dev
+pnpm test --run
+pnpm lint
+pnpm typecheck
+pnpm build
 ```
 
-### 3. **Open Your Browser**
-Navigate to [http://localhost:3000](http://localhost:3000)
+## 七个章节、八个示例
 
-## 🎥 Filming Guide
+1. State Management：Counter（`useState`）与 Clock（`useEffect` cleanup）
+2. Component Architecture：Props、组合与可复用按钮
+3. Conditional Rendering：loading、error、success 状态
+4. Data Display：列表渲染、稳定 key 与不可变更新
+5. User Interaction：受控表单、校验与异步清理
+6. Global State：Context 与主题持久化
+7. Advanced Patterns：自定义 `useLocalStorage`、`useMemo` 与 Notes
 
-### **Progressive Demonstration**
-The Dashboard component is designed for **progressive teaching**:
+## 项目结构
 
-1. **Start with**: Only `<Counter />` uncommented
-2. **Add Pattern 2**: Uncomment `<Clock />`
-3. **Add Pattern 4**: Uncomment `<UserProfile />`
-4. **Continue**: Uncomment each widget as you teach
-
-### **Code Comments Structure**
-Each pattern includes:
-- **❌ BAD**: Shows what happens without the pattern
-- **✅ GOOD**: Shows the correct implementation
-- **🐍 Python**: Comparisons to familiar Python concepts
-
-### **Example Filming Flow**
-```typescript
-export default function Dashboard() {
-  return (
-    <ThemeProvider>
-      <div>
-        {/* Pattern 1: useState */}
-        <Counter />
-        
-        {/* Pattern 2: useEffect */}
-        {/* <Clock /> */}  // ← Uncomment during filming
-        
-        {/* Pattern 4: Conditional Rendering */}
-        {/* <UserProfile /> */}  // ← Uncomment next
-        
-        // Continue for all patterns...
-      </div>
-    </ThemeProvider>
-  );
-}
-```
-
-## 🐍 Python Comparisons
-
-### **State Management**
-```python
-# Python - Manual UI updates needed
-class Counter:
-    def __init__(self):
-        self.count = 0
-    
-    def increment(self):
-        self.count += 1
-        # Need to manually update UI
-```
-
-```typescript
-// React - Automatic UI updates
-function Counter() {
-  const [count, setCount] = useState(0);
-  // UI updates automatically!
-  return <div>{count}</div>;
-}
-```
-
-### **Effect Cleanup**
-```python
-# Python - Context managers
-class Timer:
-    def __enter__(self):
-        self.start_timer()
-    
-    def __exit__(self):
-        self.stop_timer()  # Cleanup
-```
-
-```typescript
-// React - useEffect cleanup
-useEffect(() => {
-  const timer = setInterval(/* ... */);
-  return () => clearInterval(timer); // Cleanup
-}, []);
-```
-
-## 📁 Project Structure
-
-```
+```text
 src/
-├── app/
-│   ├── layout.tsx           # Root layout
-│   ├── page.tsx            # Main page with Dashboard
-│   └── globals.css         # Custom styles
+├── App.tsx
+├── main.tsx
+├── index.css                  # Tailwind、shadcn token 与基础主题
+├── styles/tutorial.css        # 教程专属普通 CSS（无 Sass）
 ├── components/
-│   └── Dashboard.tsx       # All 8 patterns in one file
+│   ├── TutorialWorkspace.tsx  # 单章节渲染、目录和导航
+│   ├── Section.tsx
+│   ├── ui/                    # shadcn Base Nova 组件
+│   └── 01_... 至 08_...       # React 示例
+├── contexts/ThemeContext.tsx
+├── hooks/
+│   ├── use-section-shortcuts.ts
+│   └── useLocalStorage.ts
+└── lib/
+    ├── sections.ts
+    └── tutorial-navigation.ts
 ```
 
-## 🎯 Educational Focus
+技术栈：React 19、TypeScript 6、Vite 8、Tailwind CSS 4、shadcn/ui Base Nova、Vitest 与 Testing Library。七个本地章节无需 React Router；`activeId + hash + localStorage` 已足够表达导航状态。
 
-### **Problem-First Approach**
-Each pattern shows:
-1. **What breaks** without the pattern
-2. **Why it breaks** (clear explanation)
-3. **How to fix it** (correct implementation)
-4. **When to use it** (real-world scenarios)
+## 建议的复习闭环
 
-### **Key Teaching Points**
+1. **Tutorial 看懂范例**：一次只研究一个章节，观察 state、render 和 cleanup。
+2. **空白 Sandbox 脱稿实现**：不复制整个项目，只根据验收目标重新写出最小示例。
+3. **Recall 隔天回忆原理**：先用文字解释“为什么”，再回到 Tutorial 对照遗漏。
 
-#### **Pattern 1: useState**
-- **Problem**: Variables don't trigger re-renders
-- **Solution**: useState automatically updates UI
-- **When**: Any component that needs to change
+Tutorial 是可运行参考答案，Sandbox 是主动提取练习，Recall 是延迟检索。三者分工明确，比把同一份长文和代码重复三遍更有效。
 
-#### **Pattern 2: useEffect**
-- **Problem**: Side effects in render cause loops
-- **Solution**: useEffect handles side effects safely
-- **When**: API calls, timers, subscriptions
+## Git 迁移说明
 
-#### **Pattern 3: Props**
-- **Problem**: Hardcoded components aren't reusable
-- **Solution**: Props make components flexible
-- **When**: Building component libraries
+项目在原仓库内原地迁移，历史没有重建。`nextjs-final` tag 指向迁移前的 Next.js 最终提交；之后的 Vite、导航、shadcn 和示例校正均为独立提交，可逐步回看。
 
-#### **Pattern 4: Conditional Rendering**
-- **Problem**: Showing all states simultaneously
-- **Solution**: Show appropriate state based on conditions
-- **When**: Loading states, error handling
-
-#### **Pattern 5: List Rendering**
-- **Problem**: No keys confuse React's reconciliation
-- **Solution**: Unique keys help React track items
-- **When**: Displaying arrays of data
-
-#### **Pattern 6: Event Handling**
-- **Problem**: Inline functions hurt performance
-- **Solution**: useCallback for stable references
-- **When**: Forms, user interactions
-
-#### **Pattern 7: Context API**
-- **Problem**: Prop drilling becomes unwieldy
-- **Solution**: Context provides global state
-- **When**: Theme, auth, global settings
-
-#### **Pattern 8: Custom Hooks**
-- **Problem**: Duplicated logic across components
-- **Solution**: Extract logic into reusable hooks
-- **When**: API calls, local storage, complex state
-
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: CSS Custom Properties + Tailwind
-- **State**: Built-in React hooks
-- **No External Dependencies**: Pure React patterns
-
-## 🎥 YouTube Content Strategy
-
-### **Hook for Viewers**
-> "Stop getting stuck with AI coding tools! Master the 8 React patterns that power 95% of modern applications."
-
-### **Target Audience**
-- **Vibe coders** using AI tools
-- **Developers** returning to frontend
-- **Bootcamp graduates** wanting to level up
-- **Anyone** confused by React concepts
-
-### **Key Differentiators**
-- **Problem-first** teaching approach
-- **Python comparisons** for familiarity
-- **Progressive complexity** - not overwhelming
-- **Practical examples** - not abstract theory
-- **AI tool context** - directly relevant
-
-## 🔗 Related Content
-
-This tutorial pairs perfectly with:
-- **Supabase fundamentals** (database patterns)
-- **Next.js deployment** (full-stack development)
-- **TypeScript basics** (type safety)
-- **Component libraries** (design systems)
-
-## 🤝 Contributing
-
-This project is educational. Feel free to:
-- Fork for your own tutorials
-- Suggest improvements
-- Report issues
-- Use in teaching
-
-## 📝 License
-
-MIT License - Use this however helps you learn and teach React!
-
----
-
-**Built for developers who want to understand React, not just copy-paste code.** 🚀
+MIT License。

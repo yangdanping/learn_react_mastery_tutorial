@@ -63,6 +63,7 @@ export function TutorialWorkspace() {
   const [activeId, setActiveId] = useState(getInitialSectionId);
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const hasMounted = useRef(false);
   const activeIndex = TUTORIAL_SECTIONS.findIndex((section) => section.id === activeId);
   const activeSection = TUTORIAL_SECTIONS[activeIndex] ?? TUTORIAL_SECTIONS[0];
   const canPrevious = activeIndex > 0;
@@ -119,6 +120,10 @@ export function TutorialWorkspace() {
   }, [commitSection]);
 
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
     headingRef.current?.focus({ preventScroll: true });
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });

@@ -16,7 +16,11 @@ lint:
 
 # 类型检查
 type-check:
-    pnpm exec tsc --noEmit
+    pnpm typecheck
+
+# 执行自动化测试
+test:
+    pnpm test --run
 
 # 执行生产环境构建
 build:
