@@ -19,6 +19,10 @@
 
 # production
 /build
+/dist
+
+# isolated feature work
+/.worktrees/
 
 # misc
 .DS_Store
