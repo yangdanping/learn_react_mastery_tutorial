@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { TitleProps } from './types';
+import type { TitleProps } from './types';
 
 export const Title = memo(({ icon, title, patternBadge }: TitleProps) => {
   console.log('Title rendered');

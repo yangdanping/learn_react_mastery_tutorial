@@ -20,7 +20,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import { Title } from './Title';

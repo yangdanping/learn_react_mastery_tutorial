@@ -18,13 +18,13 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Title } from './Title';
 
 export const Clock = () => {
   const [time, setTime] = useState<Date | null>(null);
   const [showBadExample, setShowBadExample] = useState(false);
-  const [renderCount, setRenderCount] = useState(0);
+  const [renderCount] = useState(0);
 
   // // Track renders for demonstration
   // useEffect(() => setRenderCount((prev) => prev + 1));

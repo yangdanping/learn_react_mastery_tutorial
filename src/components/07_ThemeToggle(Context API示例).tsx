@@ -18,7 +18,6 @@
 
 'use client';
 
-import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import { Title } from './Title';

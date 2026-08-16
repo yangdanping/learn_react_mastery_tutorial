@@ -18,10 +18,10 @@
 
 'use client';
 
-import React, { memo, useState } from 'react';
-import { Todo } from './types';
+import { useState } from 'react';
+import type { Todo } from './types';
 import { Title } from './Title';
-import c from 'classnames';
+import c from 'clsx';
 const ProgressBar = ({ completedCount, total }: any) => {
   return (
     <>

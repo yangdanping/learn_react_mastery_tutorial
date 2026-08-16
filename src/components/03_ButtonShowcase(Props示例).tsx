@@ -18,8 +18,8 @@
 
 'use client';
 
-import React, { memo, useState } from 'react';
-import { ButtonProps } from './types';
+import { memo } from 'react';
+import type { ButtonProps } from './types';
 import { Title } from './Title';
 // ❌ BAD: Hardcoded, not reusable(硬编码，不可复用)
 // function SubmitButton() {

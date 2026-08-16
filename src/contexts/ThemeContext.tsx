@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { createContext, use, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
+import { createContext, use, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { applyTheme, getPreferredTheme, getThemeFromDom, isTheme, readStoredTheme, THEME_CHANGE_EVENT, THEME_STORAGE_KEY, type Theme } from '../lib/theme';
 

@@ -18,9 +18,9 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
-import { User } from './types';
+import type { User } from './types';
 import { Title } from './Title';
 import { generateRandomNumber } from '../utils/getRamdomNum';
 

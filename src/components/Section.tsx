@@ -4,7 +4,7 @@
 
 'use client';
 
-import React from 'react';
+import type { ReactNode } from 'react';
 
 interface SectionProps {
   id: string;
@@ -12,7 +12,7 @@ interface SectionProps {
   title: string;
   description: string;
   hideHeader?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const Section = ({ id, number, title, description, hideHeader = false, children }: SectionProps) => {

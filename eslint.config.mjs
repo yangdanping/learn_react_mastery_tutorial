@@ -1,28 +1,31 @@
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import nextVitals from 'eslint-config-next/core-web-vitals';
-import nextTs from 'eslint-config-next/typescript';
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
+export default defineConfig([
+  globalIgnores(['dist', '.worktrees', 'coverage']),
   {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite
+    ],
+    languageOptions: {
+      globals: globals.browser
+    },
     rules: {
-      '@typescript-eslint/no-unused-vars': [
-        'off',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_'
-        }
-      ],
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
-      'react/display-name': 'off',
-      'react-hooks/exhaustive-deps': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/set-state-in-effect': 'off',
-      'react-hooks/immutability': 'off'
+      'react-hooks/immutability': 'off',
+      'react-hooks/purity': 'off',
+      'react-refresh/only-export-components': 'off'
     }
-  },
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts'])
+  }
 ]);
-
-export default eslintConfig;

@@ -9,7 +9,7 @@
 
 'use client';
 
-import React, { Activity } from 'react';
+import { Activity } from 'react';
 import { Counter } from './01_Counter(useState示例)';
 import { Clock } from './02_Clock(useEffect示例)';
 import { ButtonShowcase } from './03_ButtonShowcase(Props示例)';

@@ -26,13 +26,12 @@
 
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import { Title } from './Title';
-import { SubmittedFormData } from './types';
+import type { SubmittedFormData } from './types';
 import { generateRandomNumber } from '@/utils/getRamdomNum';
-type ChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
 
 export const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -58,12 +57,12 @@ export const ContactForm = () => {
   // Creates new function every render = performance issue!(每次渲染都创建新函数 = 性能问题！)
   // ✅ GOOD: useCallback prevents unnecessary re-renders(useCallback 避免不必要的重渲染)
   const handleChange = useCallback(
-    (e: ChangeEvent) => {
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
       // 根据表单组件设置的name来组装formData
       setFormData((prev) => ({ ...prev, [name]: value }));
       // Clear error when user starts typing(当用户开始输入时清除对应错误)
-      errors[name] && setErrors((prev) => ({ ...prev, [name]: '' }));
+      if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
     },
     [errors]
   );
@@ -74,19 +73,19 @@ export const ContactForm = () => {
     if (!formData.email.includes('@')) newErrors.email = 'Valid email required';
     if (!formData.message.trim()) newErrors.message = 'Message is required';
     const hasErrors = Object.keys(newErrors).length;
-    hasErrors && setErrors(newErrors);
+    if (hasErrors) setErrors(newErrors);
     return !hasErrors;
   };
 
   const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
+    async (e: FormEvent) => {
       e.preventDefault();
       // 简单校验
       if (!isFormValid()) return;
       // Show loading state during submission(提交期间展示加载状态)
       setIsSubmitting(true);
 
-      return await new Promise((resolve) => {
+      return await new Promise((_resolve) => {
         // Simulate API call delay(模拟 API 调用延迟)
         setTimeout(() => {
           // Create new submission with unique ID(创建带唯一 ID 的新提交记录)
