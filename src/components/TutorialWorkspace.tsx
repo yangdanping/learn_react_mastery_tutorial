@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListTree } from 'lucide-react';
 import { Counter } from './01_Counter(useState示例)';
 import { Clock } from './02_Clock(useEffect示例)';
 import { ButtonShowcase } from './03_ButtonShowcase(Props示例)';
@@ -10,6 +10,15 @@ import { ThemeToggle } from './07_ThemeToggle(Context API示例)';
 import { NotesWidget } from './08_NotesWidget(自定义Hooks示例)';
 import { HeaderThemeControl } from './HeaderThemeControl';
 import { Section } from './Section';
+import { Button } from './ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from './ui/sheet';
 import { useSectionShortcuts } from '@/hooks/use-section-shortcuts';
 import {
   getAdjacentSectionId,
@@ -52,6 +61,7 @@ function getInitialSectionId() {
 
 export function TutorialWorkspace() {
   const [activeId, setActiveId] = useState(getInitialSectionId);
+  const [directoryOpen, setDirectoryOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const activeIndex = TUTORIAL_SECTIONS.findIndex((section) => section.id === activeId);
   const activeSection = TUTORIAL_SECTIONS[activeIndex] ?? TUTORIAL_SECTIONS[0];
@@ -78,6 +88,15 @@ export function TutorialWorkspace() {
   const goNext = useCallback(() => {
     commitSection(getAdjacentSectionId(activeId, 1, TUTORIAL_SECTIONS));
   }, [activeId, commitSection]);
+
+  const selectFromDirectory = useCallback(
+    (id: string) => {
+      commitSection(id);
+      setDirectoryOpen(false);
+      window.setTimeout(() => headingRef.current?.focus({ preventScroll: true }), 0);
+    },
+    [commitSection]
+  );
 
   useSectionShortcuts({ canPrevious, canNext, onPrevious: goPrevious, onNext: goNext });
 
@@ -116,7 +135,42 @@ export function TutorialWorkspace() {
             <p className="eyebrow">REACT MASTERY · FOCUSED TUTORIAL</p>
             <h1>逐章练习，让每一次 render 都有上下文</h1>
           </div>
-          <HeaderThemeControl />
+          <div className="workspace-actions">
+            <Sheet open={directoryOpen} onOpenChange={setDirectoryOpen}>
+              <SheetTrigger
+                render={
+                  <Button variant="outline" size="lg" aria-label="Open chapter directory" />
+                }
+              >
+                <ListTree aria-hidden="true" />
+                <span>目录</span>
+                <span className="directory-progress">{progress}</span>
+              </SheetTrigger>
+              <SheetContent side="right" aria-label="Chapter directory">
+                <SheetHeader>
+                  <SheetTitle>章节目录</SheetTitle>
+                  <SheetDescription>直接跳到要复习的章节，当前示例状态会重置。</SheetDescription>
+                </SheetHeader>
+                <nav className="directory-list" aria-label="Tutorial chapters">
+                  {TUTORIAL_SECTIONS.map((section) => (
+                    <Button
+                      key={section.id}
+                      type="button"
+                      variant={section.id === activeId ? 'secondary' : 'ghost'}
+                      className="directory-item"
+                      aria-current={section.id === activeId ? 'page' : undefined}
+                      aria-label={`${section.number}. ${section.title}`}
+                      onClick={() => selectFromDirectory(section.id)}
+                    >
+                      <span className="directory-index">{section.number}</span>
+                      <span>{section.title}</span>
+                    </Button>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+            <HeaderThemeControl />
+          </div>
         </div>
       </header>
 
@@ -138,8 +192,10 @@ export function TutorialWorkspace() {
         </Section>
 
         <nav className="chapter-navigation" aria-label="Chapter navigation">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="lg"
             className="chapter-nav-button"
             onClick={goPrevious}
             disabled={!canPrevious}
@@ -149,9 +205,10 @@ export function TutorialWorkspace() {
             <ArrowLeft aria-hidden="true" />
             <span>上一章</span>
             <kbd>A</kbd>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            size="lg"
             className="chapter-nav-button chapter-nav-button--next"
             onClick={goNext}
             disabled={!canNext}
@@ -161,7 +218,7 @@ export function TutorialWorkspace() {
             <span>下一章</span>
             <kbd>D</kbd>
             <ArrowRight aria-hidden="true" />
-          </button>
+          </Button>
         </nav>
       </main>
     </div>

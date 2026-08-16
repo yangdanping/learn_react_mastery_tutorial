@@ -70,4 +70,18 @@ describe('React tutorial workspace', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Component Architecture' })).toBeInTheDocument();
     expect(document.documentElement.className).toBe(initialTheme);
   });
+
+  it('opens the chapter directory, selects a chapter, and returns focus to its heading', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /open chapter directory/i }));
+    expect(screen.getByRole('dialog', { name: /章节目录/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '4. Data Display' }));
+    const heading = screen.getByRole('heading', { level: 2, name: 'Data Display' });
+
+    expect(screen.queryByRole('dialog', { name: /章节目录/i })).not.toBeInTheDocument();
+    await waitFor(() => expect(heading).toHaveFocus());
+  });
 });
