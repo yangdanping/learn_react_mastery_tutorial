@@ -19,8 +19,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import type { User } from './types';
-import { Title } from './Title';
 import { generateRandomNumber } from '../utils/getRamdomNum';
+import { CONDITIONAL_UI_PRACTICE, CONDITIONAL_UI_THEME_ID } from '@/lib/theme-practice';
+import { tutorialLog } from '@/lib/tutorial-log';
+import { PracticeWidget } from './PracticeWidget';
 
 export const UserProfile = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -31,6 +33,7 @@ export const UserProfile = () => {
 
   const cancelPendingRequest = useCallback(() => {
     if (requestTimer.current !== null) {
+      tutorialLog(CONDITIONAL_UI_THEME_ID, '取消未完成请求，不会再 setState');
       window.clearTimeout(requestTimer.current);
       requestTimer.current = null;
     }
@@ -42,6 +45,7 @@ export const UserProfile = () => {
     setError(null);
     setUser(null);
     setRandomNumber(null);
+    tutorialLog(CONDITIONAL_UI_THEME_ID, '开始请求，UI 只应显示 loading');
 
     // Simulate API call
     requestTimer.current = window.setTimeout(() => {
@@ -50,8 +54,10 @@ export const UserProfile = () => {
       // Store the random number in state to display in UI
       setRandomNumber(random);
       if (random > 0.7) {
+        tutorialLog(CONDITIONAL_UI_THEME_ID, '请求失败，只显示 error', random);
         setError('Failed to load user data');
       } else {
+        tutorialLog(CONDITIONAL_UI_THEME_ID, '请求成功，只显示 user', random);
         setUser({ name: 'John Doe', email: 'john@example.com' });
       }
       setLoading(false);
@@ -76,9 +82,7 @@ export const UserProfile = () => {
 
   // ✅ GOOD: Show appropriate state(仅展示与当前状态相符的内容)
   return (
-    <div className="widget">
-      <Title icon="👤" title="User Profile" patternBadge="Conditional" />
-
+    <PracticeWidget icon="👤" title="User Profile" patternBadge="Conditional" practice={CONDITIONAL_UI_PRACTICE}>
       {loading && (
         <div className="text-center p-8">
           <div className="status-loading">Loading user data...</div>
@@ -128,6 +132,6 @@ export const UserProfile = () => {
           </CustomButton>
         </div>
       )}
-    </div>
+    </PracticeWidget>
   );
 };

@@ -167,13 +167,138 @@
   font-size: 0.95rem;
 }
 
+/* Single column so every .widget in a chapter shares one width. */
 .widgets-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
 }
 
+/* Card-internal split: notes left, live demo right. Cards themselves stay one column. */
+.theme-practice {
+  display: grid;
+  min-width: 0;
+  gap: 1.1rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'predict'
+    'demo'
+    'check'
+    'pitfalls'
+    'accept'
+    'id';
+}
+
+.theme-practice-predict {
+  grid-area: predict;
+}
+
+.theme-practice-demo {
+  display: flex;
+  flex-direction: column;
+  grid-area: demo;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.theme-practice-check {
+  grid-area: check;
+}
+
+.theme-practice-pitfalls {
+  grid-area: pitfalls;
+}
+
+.theme-practice-accept {
+  grid-area: accept;
+}
+
+/*
+  Narrow cards stay stacked in reading order: guess → demo → check.
+  Wide enough cards (about 704px+) use content:demo = 1:2.
+*/
+@container (min-width: 44rem) {
+  .theme-practice:has(.theme-practice-demo) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    grid-template-areas:
+      'predict demo'
+      'check demo'
+      'pitfalls pitfalls'
+      'accept accept'
+      'id id';
+    column-gap: 1.25rem;
+  }
+
+  .theme-practice-demo {
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklch, var(--muted) 28%, transparent);
+  }
+}
+
+.theme-practice-block h4,
+.theme-practice-disclosure summary {
+  margin: 0 0 0.35rem;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.theme-practice-disclosure summary {
+  cursor: pointer;
+  color: var(--muted-foreground);
+  font-weight: 600;
+  list-style-position: outside;
+}
+
+.theme-practice-disclosure summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: 0.2rem;
+}
+
+.theme-practice-block p,
+.theme-practice-block li,
+.theme-practice-disclosure li {
+  max-width: 70ch;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.theme-practice-block p {
+  margin: 0 0 0.45rem;
+}
+
+.theme-practice-block ol,
+.theme-practice-block ul,
+.theme-practice-disclosure ol,
+.theme-practice-disclosure ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.theme-practice-block li + li,
+.theme-practice-disclosure li + li {
+  margin-top: 0.28rem;
+}
+
+.theme-practice-disclosure[open] summary {
+  margin-bottom: 0.45rem;
+  color: inherit;
+  font-weight: 650;
+}
+
+.theme-practice-id {
+  grid-area: id;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
 .widget {
+  container-type: inline-size;
   min-width: 0;
   padding: clamp(1.1rem, 3vw, 1.5rem);
   border: 1px solid var(--border);

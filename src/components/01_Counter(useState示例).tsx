@@ -14,8 +14,10 @@
 • 总是使用 setState 函数，不要直接修改 state
 */
 
-import { useState } from 'react';
-import { Title } from './Title';
+import { useEffect, useState } from 'react';
+import { COUNTER_STATE_PRACTICE, COUNTER_STATE_THEME_ID } from '@/lib/theme-practice';
+import { tutorialLog } from '@/lib/tutorial-log';
+import { PracticeWidget } from './PracticeWidget';
 
 export const Counter = () => {
   // 🐍 Python equivalent: self.count = 0 in __init__(对比：在 __init__ 中设置 self.count = 0)
@@ -39,18 +41,32 @@ export const Counter = () => {
   // ✅ GOOD: useState triggers automatic re-renders
   // ✅ 良好：useState 会触发自动重新渲染
   const [count, setCount] = useState(0);
-  const increment = () => setCount((current) => current + 1);
-  const decrement = () => setCount((current) => current - 1);
-  const reset = () => setCount(0);
+  const increment = () =>
+    setCount((current) => {
+      const next = current + 1;
+      tutorialLog(COUNTER_STATE_THEME_ID, `setCount ${current} → ${next}，UI 会 re-render，不是只打在控制台`);
+      return next;
+    });
+  const decrement = () =>
+    setCount((current) => {
+      const next = current - 1;
+      tutorialLog(COUNTER_STATE_THEME_ID, `setCount ${current} → ${next}，UI 会 re-render`);
+      return next;
+    });
+  const reset = () => {
+    tutorialLog(COUNTER_STATE_THEME_ID, 'reset → 0，UI 会 re-render');
+    setCount(0);
+  };
+
+  useEffect(() => {
+    tutorialLog(COUNTER_STATE_THEME_ID, 'mount，count 从 0 开始');
+    return () => tutorialLog(COUNTER_STATE_THEME_ID, 'unmount，useState 的 count 会被丢弃');
+  }, []);
 
   return (
-    <div className="widget">
-      <Title icon="🔢" title="Counter Widget" patternBadge="useState" />
+    <PracticeWidget icon="🔢" title="Counter Widget" patternBadge="useState" practice={COUNTER_STATE_PRACTICE}>
       <div className="text-center mb-4">
         <div className="text-3xl font-bold my-4">{count}</div>
-        <p className="text-sm mb-0" style={{ color: 'var(--muted-foreground)' }}>
-          Click buttons to see automatic re-renders
-        </p>
       </div>
       <div className="flex gap-2 justify-center">
         <button onClick={decrement} className="btn btn-secondary">
@@ -63,6 +79,6 @@ export const Counter = () => {
           +
         </button>
       </div>
-    </div>
+    </PracticeWidget>
   );
 };

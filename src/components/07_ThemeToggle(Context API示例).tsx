@@ -18,7 +18,9 @@
 
 import { useTheme } from '../contexts/ThemeContext';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
-import { Title } from './Title';
+import { CONTEXT_THEME_PRACTICE, CONTEXT_THEME_THEME_ID } from '@/lib/theme-practice';
+import { tutorialLog } from '@/lib/tutorial-log';
+import { PracticeWidget } from './PracticeWidget';
 
 // ❌ BAD: Prop drilling nightmare - passing props through every level
 // function App() {
@@ -46,21 +48,24 @@ export const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="widget">
-      <Title icon="🎨" title="Theme Switcher" patternBadge="Context API" />
-      <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>
-        Global state without prop drilling
-        {/* 无需层层传递的全局状态 */}
-      </p>
+    <PracticeWidget icon="🎨" title="Theme Switcher" patternBadge="Context API" practice={CONTEXT_THEME_PRACTICE}>
       <div className="text-center">
         <div className="text-xl mb-4" suppressHydrationWarning>
           Current theme: <strong>{theme}</strong>
         </div>
-        <CustomButton onClick={toggleTheme}>Switch to {theme === 'light' ? '🌙 Dark' : '☀️ Light'} mode</CustomButton>
+        <CustomButton
+          onClick={() => {
+            const next = theme === 'light' ? 'dark' : 'light';
+            tutorialLog(CONTEXT_THEME_THEME_ID, `Context toggle ${theme} → ${next}，整页（含顶栏）应变，且会持久化`);
+            toggleTheme();
+          }}
+        >
+          Switch to {theme === 'light' ? '🌙 Dark' : '☀️ Light'} mode
+        </CustomButton>
         <p className="theme-hotkey-hint">
-          Theme choice persists independently; <kbd className="kbd">A</kbd> / <kbd className="kbd">D</kbd> remain reserved for chapter navigation.
+          <kbd className="kbd">A</kbd> / <kbd className="kbd">D</kbd> 只换章。
         </p>
       </div>
-    </div>
+    </PracticeWidget>
   );
 };

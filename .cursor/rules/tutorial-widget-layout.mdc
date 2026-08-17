@@ -1,0 +1,28 @@
+---
+description: Keep tutorial example cards the same width
+globs: src/styles/tutorial.css,src/components/**/*.tsx
+alwaysApply: false
+---
+
+# Tutorial widget width
+
+`.widgets-grid` is a **single equal-width column**. Every `.widget` in a chapter must share that width. Do not mix a multi-column `auto-fit` grid with one child that spans full width.
+
+```css
+/* ✅ same width for Counter, Clock, and every later card */
+.widgets-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+/* ❌ Counter stays half-width, Clock stretches */
+.widgets-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+.theme-practice-widget {
+  grid-column: 1 / -1;
+}
+```
+
+Nested layouts inside a card (form + history) may use multiple columns. The **cards themselves** may not.

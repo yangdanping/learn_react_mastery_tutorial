@@ -18,7 +18,9 @@
 
 import { useState } from 'react';
 import type { Todo } from './types';
-import { Title } from './Title';
+import { LIST_KEYS_PRACTICE, LIST_KEYS_THEME_ID } from '@/lib/theme-practice';
+import { tutorialLog } from '@/lib/tutorial-log';
+import { PracticeWidget } from './PracticeWidget';
 import c from 'clsx';
 
 interface ProgressBarProps {
@@ -55,12 +57,20 @@ export const TodoList = () => {
   ]);
 
   const toggleTodo = (id: number) => {
-    setTodos((current) => current.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
+    setTodos((current) => {
+      const next = current.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo));
+      const item = next.find((todo) => todo.id === id);
+      const completedCount = next.filter((todo) => todo.completed).length;
+      tutorialLog(LIST_KEYS_THEME_ID, `toggle key=id:${id}`, {
+        completed: item?.completed,
+        progress: `${completedCount}/${next.length}`
+      });
+      return next;
+    });
   };
 
   return (
-    <div className="widget">
-      <Title icon="📝" title="Learning Checklist" patternBadge="List Rendering" />
+    <PracticeWidget icon="📝" title="Learning Checklist" patternBadge="List Rendering" practice={LIST_KEYS_PRACTICE}>
       {/* 进度条 */}
       <div className="mb-4">
         <ProgressBar completedCount={todos.filter((todo) => todo.completed).length} total={todos.length} />
@@ -85,6 +95,6 @@ export const TodoList = () => {
           </button>
         ))}
       </div>
-    </div>
+    </PracticeWidget>
   );
 };

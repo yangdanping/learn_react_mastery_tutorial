@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { TUTORIAL_PREFS_STORAGE_KEY } from './lib/tutorial-navigation';
 
@@ -21,6 +21,9 @@ describe('React tutorial workspace', () => {
     expect(screen.queryByRole('heading', { level: 2, name: 'Component Architecture' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /previous chapter/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /next chapter/i })).toBeEnabled();
+    expect(screen.getByText('counter-state')).toBeInTheDocument();
+    expect(screen.getByText('effect-cleanup')).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { name: '操作前先猜' })).toHaveLength(2);
   });
 
   it('navigates with visible controls, persists the chapter, and moves heading focus', async () => {
@@ -73,6 +76,21 @@ describe('React tutorial workspace', () => {
 
     expect(screen.getByRole('heading', { level: 2, name: 'Component Architecture' })).toBeInTheDocument();
     expect(document.documentElement.className).toBe(initialTheme);
+  });
+
+  it('clears the console when the chapter actually changes', () => {
+    const clear = vi.spyOn(console, 'clear').mockImplementation(() => {});
+
+    render(<App />);
+    expect(clear).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(document, { key: 'd' });
+    expect(clear).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(document, { key: 'd' });
+    expect(clear).toHaveBeenCalledTimes(2);
+
+    clear.mockRestore();
   });
 
   it('opens the chapter directory, selects a chapter, and returns focus to its heading', async () => {

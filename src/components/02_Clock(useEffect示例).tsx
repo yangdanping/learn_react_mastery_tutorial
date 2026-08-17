@@ -17,7 +17,9 @@
 */
 
 import { useEffect, useState } from 'react';
-import { Title } from './Title';
+import { EFFECT_CLEANUP_PRACTICE, EFFECT_CLEANUP_THEME_ID } from '@/lib/theme-practice';
+import { tutorialLog } from '@/lib/tutorial-log';
+import { PracticeWidget } from './PracticeWidget';
 
 export const Clock = () => {
   const [time, setTime] = useState<Date | null>(null);
@@ -33,25 +35,20 @@ export const Clock = () => {
 
     // 🐍 Python: Like __enter__ in context manager(类比：类似上下文管理器中的 __enter__)
     const timer = setInterval(() => setTime(new Date()), 1000);
+    tutorialLog(EFFECT_CLEANUP_THEME_ID, 'setup: setInterval', timer);
 
     // 🐍 Python: Like __exit__ in context manager (Python 类比：类似上下文管理器中的 __exit__)
-    return () => clearInterval(timer);
+    return () => {
+      tutorialLog(EFFECT_CLEANUP_THEME_ID, 'cleanup: clearInterval', timer);
+      clearInterval(timer);
+    };
   }, []);
 
   return (
-    <div className="widget">
-      <Title icon="⏰" title="Live Clock" patternBadge="useEffect" />
-
-      <div className="rounded mb-4 p-3 tint tint-primary text-sm">
-        离开本章时组件会卸载，Effect cleanup 会立即清除 interval；错误写法保留在源码注释中。
-      </div>
-
+    <PracticeWidget icon="⏰" title="Live Clock" patternBadge="useEffect" practice={EFFECT_CLEANUP_PRACTICE}>
       <div className="text-center">
         <div className="text-2xl font-bold my-4">{time ? time.toLocaleTimeString() : '--:--:-- --'}</div>
-        <p className="text-sm mb-0" style={{ color: 'var(--muted-foreground)' }}>
-          Updates every second with automatic cleanup
-        </p>
       </div>
-    </div>
+    </PracticeWidget>
   );
 };

@@ -27,6 +27,7 @@ import {
   writeTutorialPrefs
 } from '@/lib/tutorial-navigation';
 import { isTutorialSectionId, TUTORIAL_SECTIONS } from '@/lib/sections';
+import { clearTutorialLogs } from '@/lib/tutorial-log';
 
 function renderSectionBody(id: string) {
   switch (id) {
@@ -72,6 +73,7 @@ export function TutorialWorkspace() {
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const hasMounted = useRef(false);
+  const activeIdRef = useRef(activeId);
   const activeIndex = TUTORIAL_SECTIONS.findIndex((section) => section.id === activeId);
   const activeSection = TUTORIAL_SECTIONS[activeIndex] ?? TUTORIAL_SECTIONS[0];
   const canPrevious = activeIndex > 0;
@@ -79,6 +81,10 @@ export function TutorialWorkspace() {
 
   const commitSection = useCallback((id: string, historyMode: 'push' | 'replace' | 'none' = 'push') => {
     if (!isTutorialSectionId(id)) return;
+    if (activeIdRef.current !== id) {
+      clearTutorialLogs();
+      activeIdRef.current = id;
+    }
     setActiveId(id);
     writeTutorialPrefs(getTutorialStorage(), { activeId: id });
 

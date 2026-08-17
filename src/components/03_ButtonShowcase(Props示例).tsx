@@ -18,7 +18,9 @@
 
 import { memo } from 'react';
 import type { ButtonProps } from './types';
-import { Title } from './Title';
+import { PROPS_COMPOSITION_PRACTICE, PROPS_COMPOSITION_THEME_ID } from '@/lib/theme-practice';
+import { tutorialLog } from '@/lib/tutorial-log';
+import { PracticeWidget } from './PracticeWidget';
 // ❌ BAD: Hardcoded, not reusable(硬编码，不可复用)
 // function SubmitButton() {
 //   return <button className="btn btn-primary">Submit</button>;
@@ -40,30 +42,39 @@ export const CustomButton = memo((props: ButtonProps) => {
 });
 
 export const ButtonShowcase = () => {
+  const clickVariant = (variant: string, message: string) => () => {
+    tutorialLog(PROPS_COMPOSITION_THEME_ID, `同一个 CustomButton，variant=${variant}`);
+    alert(message);
+  };
+
   return (
-    <div className="widget">
-      <Title icon="🎨" title="CustomButton Variants" patternBadge="Props" />
-      <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>
-        One component, multiple styles via props
-      </p>
+    <PracticeWidget
+      icon="🎨"
+      title="CustomButton Variants"
+      patternBadge="Props"
+      practice={PROPS_COMPOSITION_PRACTICE}
+    >
       <div className="flex flex-row flex-wrap gap-3 justify-center">
         {/* 复用同一个组件 */}
-        <CustomButton variant="primary" onClick={() => alert('Primary!')}>
+        <CustomButton variant="primary" onClick={clickVariant('primary', 'Primary!')}>
           Primary CustomButton
         </CustomButton>
-        <CustomButton variant="secondary" onClick={() => alert('Secondary!')}>
+        <CustomButton variant="secondary" onClick={clickVariant('secondary', 'Secondary!')}>
           Secondary CustomButton
         </CustomButton>
-        <CustomButton variant="destructive" onClick={() => alert('Danger!')}>
+        <CustomButton variant="destructive" onClick={clickVariant('destructive', 'Danger!')}>
           Destructive CustomButton
         </CustomButton>
-        <CustomButton disabled onClick={() => alert('Never fires')}>
+        <CustomButton
+          disabled
+          onClick={() => tutorialLog(PROPS_COMPOSITION_THEME_ID, 'disabled 的 onClick 不应出现这条')}
+        >
           Disabled CustomButton
         </CustomButton>
-        <CustomButton variant="primary" onClick={() => alert('Sean is on fire!')}>
+        <CustomButton variant="primary" onClick={clickVariant('primary', 'Sean is on fire!')}>
           Sean CustomButton
         </CustomButton>
       </div>
-    </div>
+    </PracticeWidget>
   );
 };

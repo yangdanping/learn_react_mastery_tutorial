@@ -22,7 +22,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import { Input } from './ui/input';
-import { Title } from './Title';
+import { CUSTOM_HOOKS_STORAGE_PRACTICE, CUSTOM_HOOKS_STORAGE_THEME_ID } from '@/lib/theme-practice';
+import { tutorialLog } from '@/lib/tutorial-log';
+import { PracticeWidget } from './PracticeWidget';
 import type { Note } from './types';
 
 function isNote(value: unknown): value is Note {
@@ -85,9 +87,14 @@ export const NotesWidget = () => {
     };
   }, [notes]);
 
+  useEffect(() => {
+    tutorialLog(CUSTOM_HOOKS_STORAGE_THEME_ID, 'notes 变了才重算 stats', noteStats);
+  }, [noteStats]);
+
   const addNote = useCallback(() => {
     if (newNote.trim()) {
       const note: Note = { id: createNoteId(), text: newNote.trim() };
+      tutorialLog(CUSTOM_HOOKS_STORAGE_THEME_ID, 'persist note', note.id);
       setStoredNotes((current: unknown) => [...normalizeStoredNotes(current), note]);
       setNewNote('');
     }
@@ -98,8 +105,7 @@ export const NotesWidget = () => {
   }, [setStoredNotes]);
 
   return (
-    <div className="widget">
-      <Title icon="📚" title="Smart Notes" patternBadge="Custom Hooks" />
+    <PracticeWidget icon="📚" title="Smart Notes" patternBadge="Custom Hooks" practice={CUSTOM_HOOKS_STORAGE_PRACTICE}>
 
       <div
         className="grid grid-cols-3 gap-2 text-center p-3 rounded mb-4"
@@ -169,6 +175,6 @@ export const NotesWidget = () => {
           </CustomButton>
         </div>
       )}
-    </div>
+    </PracticeWidget>
   );
 };

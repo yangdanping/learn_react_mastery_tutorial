@@ -29,7 +29,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, ty
 import { CustomButton } from './03_ButtonShowcase(Props示例)';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { Title } from './Title';
+import { FORM_CONTROL_PRACTICE, FORM_CONTROL_THEME_ID } from '@/lib/theme-practice';
+import { tutorialLog } from '@/lib/tutorial-log';
+import { PracticeWidget } from './PracticeWidget';
 import type { SubmittedFormData } from './types';
 import { generateRandomNumber } from '@/utils/getRamdomNum';
 
@@ -92,6 +94,7 @@ export const ContactForm = () => {
       if (newErrors.name) nameInputRef.current?.focus();
       else if (newErrors.email) emailInputRef.current?.focus();
       else messageInputRef.current?.focus();
+      tutorialLog(FORM_CONTROL_THEME_ID, '校验失败，焦点落到首个无效字段', Object.keys(newErrors));
     }
     return !hasErrors;
   }, [formData]);
@@ -103,6 +106,7 @@ export const ContactForm = () => {
       if (!isFormValid()) return;
       // Show loading state during submission(提交期间展示加载状态)
       setIsSubmitting(true);
+      tutorialLog(FORM_CONTROL_THEME_ID, 'preventDefault 后提交，值来自 React state', formData);
 
       submissionTimer.current = window.setTimeout(() => {
         submissionTimer.current = null;
@@ -121,7 +125,10 @@ export const ContactForm = () => {
 
   useEffect(() => {
     return () => {
-      if (submissionTimer.current !== null) window.clearTimeout(submissionTimer.current);
+      if (submissionTimer.current !== null) {
+        tutorialLog(FORM_CONTROL_THEME_ID, '卸载，取消未完成提交，不会写入历史');
+        window.clearTimeout(submissionTimer.current);
+      }
     };
   }, []);
 
@@ -146,12 +153,7 @@ export const ContactForm = () => {
   }, [submittedDataList]);
 
   return (
-    <div className="widget">
-      <Title icon="📧" title="Contact Form" patternBadge="Forms" />
-      <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>
-        Controlled components with validation and multiple data persistence
-      </p>
-
+    <PracticeWidget icon="📧" title="Contact Form" patternBadge="Forms" practice={FORM_CONTROL_PRACTICE}>
       {/* Side-by-side layout */}
       <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2">
         {/* Left side - Form */}
@@ -426,6 +428,6 @@ export const ContactForm = () => {
           )}
         </div>
       </div>
-    </div>
+    </PracticeWidget>
   );
 };
